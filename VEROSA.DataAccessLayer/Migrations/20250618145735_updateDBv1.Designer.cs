@@ -12,8 +12,8 @@ using VEROSA.DataAccessLayer.Context;
 namespace VEROSA.DataAccessLayer.Migrations
 {
     [DbContext(typeof(VerosaBeautyContext))]
-    [Migration("20250618114841_updateDbv1")]
-    partial class updateDbv1
+    [Migration("20250618145735_updateDBv1")]
+    partial class updateDBv1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,14 +37,33 @@ namespace VEROSA.DataAccessLayer.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<DateTime>("CreatedAt"));
 
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasMaxLength(50)
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("Role")
                         .IsRequired()

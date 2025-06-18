@@ -1,53 +1,80 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VEROSA.BussinessLogicLayer.Services.Account;
+using VEROSA.Common.Models.ApiResponse;
 using VEROSA.Common.Models.Request;
 using VEROSA.Common.Models.Response;
 
 namespace VEROSA_BE_PROJECT.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/auths")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _service;
 
-        public AccountController(IAccountService service) => _service = service;
+        public AccountController(IAccountService service)
+        {
+            _service = service;
+        }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AccountResponse>> Register(RegisterRequest request)
+        public async Task<IActionResult> Register(RegisterRequest request)
         {
             try
             {
-                var response = await _service.RegisterAsync(request);
-                return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
+                var account = await _service.RegisterAsync(request);
+                return Ok(
+                    new ApiResponse<AccountResponse>
+                    {
+                        Code = StatusCodes.Status200OK,
+                        Success = true,
+                        Message = "Register Successfully",
+                        Data = account,
+                    }
+                );
             }
             catch (ApplicationException ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(
+                    new ApiResponse<object>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Success = false,
+                        Message = ex.Message,
+                        Data = null,
+                    }
+                );
             }
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AccountResponse>> Login(LoginRequest request)
+        public async Task<IActionResult> Login(LoginRequest request)
         {
             try
             {
-                var response = await _service.LoginAsync(request);
-                return Ok(response);
+                var auth = await _service.LoginAsync(request);
+                return Ok(
+                    new ApiResponse<AuthenticationResponse>
+                    {
+                        Code = StatusCodes.Status200OK,
+                        Success = true,
+                        Message = "Login Successfully",
+                        Data = auth,
+                    }
+                );
             }
             catch (ApplicationException ex)
             {
-                return Unauthorized(new { message = ex.Message });
+                return Unauthorized(
+                    new ApiResponse<object>
+                    {
+                        Code = StatusCodes.Status401Unauthorized,
+                        Success = false,
+                        Message = ex.Message,
+                        Data = null,
+                    }
+                );
             }
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AccountResponse>> GetById(Guid id)
-        {
-            // Nếu cần có UnitOfWork và Mapper, inject thêm hoặc sử dụng service mới
-            // Đây là ví dụ đơn giản:
-            var account = await _service.RegisterAsync(new RegisterRequest()); // Placeholder
-            return Ok(account);
         }
     }
 }

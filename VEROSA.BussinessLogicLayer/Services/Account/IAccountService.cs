@@ -11,6 +11,6 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
     public interface IAccountService
     {
         Task<AccountResponse> RegisterAsync(RegisterRequest request);
-        Task<AccountResponse> LoginAsync(LoginRequest request);
+        Task<AuthenticationResponse> LoginAsync(LoginRequest request);
     }
 }
