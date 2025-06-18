@@ -26,4 +26,8 @@
     <ProjectReference Include="..\VEROSA.Common\VEROSA.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repositories\Account\" />
+  </ItemGroup>
+
 </Project>

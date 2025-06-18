@@ -21,8 +21,4 @@
     <ProjectReference Include="..\VEROSA.Common\VEROSA.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>
