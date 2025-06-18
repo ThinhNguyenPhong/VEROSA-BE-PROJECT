@@ -14,14 +14,18 @@ namespace VEROSA.DataAccessLayer.Repositories.Account
         public async Task<Entities.Account> GetByEmailAsync(string email) =>
             await _context.Set<Entities.Account>().FirstOrDefaultAsync(a => a.Email == email);
 
-        public async Task<Entities.Account> GetByUsernameOrEmailAsync(string input) =>
-            await _context
+        public Task<Entities.Account> GetByUsernameOrEmailAsync(string input) =>
+            _context
                 .Set<Entities.Account>()
                 .FirstOrDefaultAsync(a => a.Username == input || a.Email == input);
 
-        public async Task<Entities.Account> GetByConfirmationTokenAsync(string token) =>
-            await _context
+        public Task<Entities.Account> GetByConfirmationTokenAsync(string token) =>
+            _context
                 .Set<Entities.Account>()
-                .FirstOrDefaultAsync(a => a.ConfirmationToken == token);
+                .FirstOrDefaultAsync(a =>
+                    a.ConfirmationToken == token
+                    && a.ConfirmationTokenExpires != null
+                    && a.ConfirmationTokenExpires > DateTime.UtcNow
+                );
     }
 }

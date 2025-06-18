@@ -7,74 +7,27 @@ using VEROSA.Common.Models.Response;
 namespace VEROSA_BE_PROJECT.Controllers
 {
     [ApiController]
-    [Route("api/auths")]
-    public class AccountController : ControllerBase
+    [Route("api/[controller]")]
+    public class AuthController : ControllerBase
     {
-        private readonly IAccountService _service;
+        private readonly IAccountService _svc;
 
-        public AccountController(IAccountService service)
-        {
-            _service = service;
-        }
+        public AuthController(IAccountService svc) => _svc = svc;
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
-        {
-            try
-            {
-                var account = await _service.RegisterAsync(request);
-                return Ok(
-                    new ApiResponse<AccountResponse>
-                    {
-                        Code = StatusCodes.Status200OK,
-                        Success = true,
-                        Message = "Register Successfully",
-                        Data = account,
-                    }
-                );
-            }
-            catch (ApplicationException ex)
-            {
-                return BadRequest(
-                    new ApiResponse<object>
-                    {
-                        Code = StatusCodes.Status400BadRequest,
-                        Success = false,
-                        Message = ex.Message,
-                        Data = null,
-                    }
-                );
-            }
-        }
+        public async Task<ActionResult<AccountResponse>> Register([FromBody] RegisterRequest req) =>
+            CreatedAtAction(null, await _svc.RegisterAsync(req));
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
-        {
-            try
-            {
-                var auth = await _service.LoginAsync(request);
-                return Ok(
-                    new ApiResponse<AuthenticationResponse>
-                    {
-                        Code = StatusCodes.Status200OK,
-                        Success = true,
-                        Message = "Login Successfully",
-                        Data = auth,
-                    }
-                );
-            }
-            catch (ApplicationException ex)
-            {
-                return Unauthorized(
-                    new ApiResponse<object>
-                    {
-                        Code = StatusCodes.Status401Unauthorized,
-                        Success = false,
-                        Message = ex.Message,
-                        Data = null,
-                    }
-                );
-            }
-        }
+        public async Task<ActionResult<AuthenticationResponse>> Login(
+            [FromBody] LoginRequest req
+        ) => Ok(await _svc.LoginAsync(req));
+
+        [HttpPost("set-password")]
+        [ProducesResponseType(typeof(AuthenticationResponse), 200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<AuthenticationResponse>> SetPassword(
+            [FromBody] SetPasswordRequest req
+        ) => Ok(await _svc.SetPasswordAsync(req));
     }
 }

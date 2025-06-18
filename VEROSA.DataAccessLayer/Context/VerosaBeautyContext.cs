@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using VEROSA.DataAccessLayer.Entities;
 
@@ -32,7 +28,6 @@ namespace VEROSA.DataAccessLayer.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // 1. Map all Guid PKs → CHAR(36), let EF generate on add
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 var pk = entityType.FindPrimaryKey();
@@ -47,25 +42,41 @@ namespace VEROSA.DataAccessLayer.Context
                 }
             }
 
-            // 2. Account configuration
             modelBuilder.Entity<Account>(entity =>
             {
                 entity.ToTable("Accounts");
                 entity.HasKey(e => e.Id);
-
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
 
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
 
-                entity.Property(e => e.PasswordHash).IsRequired();
+                entity.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
+
+                entity.Property(e => e.LastName).IsRequired().HasMaxLength(50);
+
+                entity.Property(e => e.DateOfBirth).IsRequired().HasColumnType("datetime");
+
+                entity.Property(e => e.Phone).IsRequired().HasMaxLength(20);
+
+                entity.Property(e => e.PasswordHash).HasColumnType("text").IsRequired(false);
 
                 entity.Property(e => e.Role).HasConversion<string>().IsRequired();
 
                 entity.Property(e => e.Status).HasConversion<string>().IsRequired();
 
-                // Timestamps: values set in SaveChangesAsync override
+                entity
+                    .Property(e => e.ConfirmationToken)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .IsRequired(false);
+
+                entity
+                    .Property(e => e.ConfirmationTokenExpires)
+                    .HasColumnType("datetime")
+                    .IsRequired(false);
+
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime").ValueGeneratedOnAdd();
 
                 entity
@@ -74,7 +85,6 @@ namespace VEROSA.DataAccessLayer.Context
                     .ValueGeneratedOnAddOrUpdate();
             });
 
-            // 3. Enum → string for other entities
             modelBuilder.Entity<BlogPost>().Property(b => b.Type).HasConversion<string>();
 
             modelBuilder.Entity<Payment>(entity =>
@@ -87,7 +97,6 @@ namespace VEROSA.DataAccessLayer.Context
 
             modelBuilder.Entity<DiscountCode>().Property(d => d.Type).HasConversion<string>();
 
-            // 4. Appointment relationships
             modelBuilder.Entity<Appointment>(entity =>
             {
                 entity
@@ -112,7 +121,6 @@ namespace VEROSA.DataAccessLayer.Context
         )
         {
             var now = DateTime.UtcNow;
-
             foreach (var entry in ChangeTracker.Entries<Account>())
             {
                 if (entry.State == EntityState.Added)
@@ -130,11 +138,10 @@ namespace VEROSA.DataAccessLayer.Context
         }
 
         public async Task<Account> GetByConfirmationTokenAsync(string token) =>
-            await Set<Account>()
-                .FirstOrDefaultAsync(a =>
-                    a.ConfirmationToken == token
-                    && a.ConfirmationTokenExpires != null
-                    && a.ConfirmationTokenExpires > DateTime.UtcNow
-                );
+            await Accounts.FirstOrDefaultAsync(a =>
+                a.ConfirmationToken == token
+                && a.ConfirmationTokenExpires.HasValue
+                && a.ConfirmationTokenExpires.Value > DateTime.UtcNow
+            );
     }
 }

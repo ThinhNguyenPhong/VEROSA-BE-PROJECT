@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VEROSA.DataAccessLayer.Context;
 
@@ -11,9 +12,11 @@ using VEROSA.DataAccessLayer.Context;
 namespace VEROSA.DataAccessLayer.Migrations
 {
     [DbContext(typeof(VerosaBeautyContext))]
-    partial class VerosaBeautyContextModelSnapshot : ModelSnapshot
+    [Migration("20250618163516_AddConfirmationFields")]
+    partial class AddConfirmationFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,6 +64,7 @@ namespace VEROSA.DataAccessLayer.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")

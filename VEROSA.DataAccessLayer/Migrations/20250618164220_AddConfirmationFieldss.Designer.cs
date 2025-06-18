@@ -12,8 +12,8 @@ using VEROSA.DataAccessLayer.Context;
 namespace VEROSA.DataAccessLayer.Migrations
 {
     [DbContext(typeof(VerosaBeautyContext))]
-    [Migration("20250618152309_updateDB")]
-    partial class updateDB
+    [Migration("20250618164220_AddConfirmationFieldss")]
+    partial class AddConfirmationFieldss
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,11 +32,12 @@ namespace VEROSA.DataAccessLayer.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<string>("ConfirmationToken")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<DateTime?>("ConfirmationTokenExpires")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -45,8 +46,7 @@ namespace VEROSA.DataAccessLayer.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<DateTime>("CreatedAt"));
 
                     b.Property<DateTime>("DateOfBirth")
-                        .HasMaxLength(50)
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -64,13 +64,12 @@ namespace VEROSA.DataAccessLayer.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("text");
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("Role")
                         .IsRequired()
