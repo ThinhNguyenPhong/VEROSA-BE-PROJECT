@@ -14,8 +14,20 @@ namespace VEROSA.DataAccessLayer.Entities
         [Required, MaxLength(100)]
         public string Email { get; set; }
 
+        [Required, MaxLength(50)]
+        public string FirstName { get; set; }
+
+        [Required, MaxLength(50)]
+        public string LastName { get; set; }
+
         [Required]
-        public string PasswordHash { get; set; }
+        public DateTime DateOfBirth { get; set; }
+
+        [Required, MaxLength(20)]
+        public string Phone { get; set; }
+
+        // Cho phép NULL khi mới tạo
+        public string? PasswordHash { get; set; }
 
         [Required]
         public AccountRole Role { get; set; }
@@ -23,8 +35,13 @@ namespace VEROSA.DataAccessLayer.Entities
         [Required]
         public AccountStatus Status { get; set; }
 
+        public string? ConfirmationToken { get; set; }
+        public DateTime? ConfirmationTokenExpires { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        // Quan hệ
         public ICollection<Address> Addresses { get; set; }
         public ICollection<Appointment> CustomerAppointments { get; set; }
         public ICollection<Appointment> ConsultantAppointments { get; set; }
