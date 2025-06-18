@@ -6,9 +6,9 @@ namespace VEROSA.DataAccessLayer.Bases.GenericRepo
     public class GenericRepository<T> : IGenericRepository<T>
         where T : class
     {
-        protected readonly VerosaBeautyContext _context;
+        protected readonly DbContext _context;
 
-        public GenericRepository(VerosaBeautyContext context) => _context = context;
+        public GenericRepository(DbContext context) => _context = context;
 
         public async Task<T> GetByIdAsync(Guid id) => await _context.Set<T>().FindAsync(id);
 
@@ -18,6 +18,6 @@ namespace VEROSA.DataAccessLayer.Bases.GenericRepo
 
         public void Update(T entity) => _context.Set<T>().Update(entity);
 
-        public void Remove(T entity) => _context.Set<T>().Remove(entity);
+        public void Delete(T entity) => _context.Set<T>().Remove(entity);
     }
 }
