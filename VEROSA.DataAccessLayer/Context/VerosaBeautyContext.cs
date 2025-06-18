@@ -128,5 +128,13 @@ namespace VEROSA.DataAccessLayer.Context
 
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
+
+        public async Task<Account> GetByConfirmationTokenAsync(string token) =>
+            await Set<Account>()
+                .FirstOrDefaultAsync(a =>
+                    a.ConfirmationToken == token
+                    && a.ConfirmationTokenExpires != null
+                    && a.ConfirmationTokenExpires > DateTime.UtcNow
+                );
     }
 }

@@ -12,5 +12,6 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
     {
         Task<AccountResponse> RegisterAsync(RegisterRequest request);
         Task<AuthenticationResponse> LoginAsync(LoginRequest request);
+        Task<AuthenticationResponse> ConfirmAsync(ConfirmAccountRequest request);
     }
 }

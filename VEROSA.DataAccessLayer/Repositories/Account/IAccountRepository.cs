@@ -6,4 +6,5 @@ public interface IAccountRepository : IGenericRepository<Account>
     Task<Account> GetByUsernameAsync(string username);
     Task<Account> GetByEmailAsync(string email);
     Task<Account> GetByUsernameOrEmailAsync(string input);
+    Task<Account> GetByConfirmationTokenAsync(string token);
 }

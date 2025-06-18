@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VEROSA.DataAccessLayer.Bases.GenericRepo;
-using VEROSA.DataAccessLayer.Context;
-using VEROSA.DataAccessLayer.Entities;
 
 namespace VEROSA.DataAccessLayer.Repositories.Account
 {
@@ -25,5 +18,10 @@ namespace VEROSA.DataAccessLayer.Repositories.Account
             await _context
                 .Set<Entities.Account>()
                 .FirstOrDefaultAsync(a => a.Username == input || a.Email == input);
+
+        public async Task<Entities.Account> GetByConfirmationTokenAsync(string token) =>
+            await _context
+                .Set<Entities.Account>()
+                .FirstOrDefaultAsync(a => a.ConfirmationToken == token);
     }
 }

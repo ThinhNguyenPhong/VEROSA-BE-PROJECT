@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using VEROSA_BE_PROJECT.Mappers;
 using VEROSA.BussinessLogicLayer.PasswordHash;
 using VEROSA.BussinessLogicLayer.Services.Account;
+using VEROSA.BussinessLogicLayer.Services.Email;
 using VEROSA.Common.Models.JWTSettings;
 using VEROSA.DataAccessLayer.Bases.GenericRepo;
 using VEROSA.DataAccessLayer.Bases.UnitOfWork;
@@ -66,6 +67,10 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddTransient<IEmailService, SmtpEmailService>();
+builder.Services.Configure<FrontendSettings>(builder.Configuration.GetSection("Frontend"));
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
 // 6) Swagger + security definitions
 builder.Services.AddEndpointsApiExplorer();

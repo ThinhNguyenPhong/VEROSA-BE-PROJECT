@@ -34,7 +34,8 @@ namespace VEROSA.DataAccessLayer.Entities
 
         [Required]
         public AccountStatus Status { get; set; }
-
+        public string ConfirmationToken { get; set; }
+        public DateTime? ConfirmationTokenExpires { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public ICollection<Address> Addresses { get; set; }

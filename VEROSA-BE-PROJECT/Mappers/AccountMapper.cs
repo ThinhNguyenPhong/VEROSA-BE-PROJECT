@@ -15,7 +15,7 @@ namespace VEROSA_BE_PROJECT.Mappers
             CreateMap<RegisterRequest, Account>()
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(_ => AccountRole.Customer))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => AccountStatus.Active))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => AccountStatus.Pending))
                 .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));

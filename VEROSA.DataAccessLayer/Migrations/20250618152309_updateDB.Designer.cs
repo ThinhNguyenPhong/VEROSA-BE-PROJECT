@@ -12,8 +12,8 @@ using VEROSA.DataAccessLayer.Context;
 namespace VEROSA.DataAccessLayer.Migrations
 {
     [DbContext(typeof(VerosaBeautyContext))]
-    [Migration("20250618145735_updateDBv1")]
-    partial class updateDBv1
+    [Migration("20250618152309_updateDB")]
+    partial class updateDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,6 +30,13 @@ namespace VEROSA.DataAccessLayer.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("ConfirmationToken")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("ConfirmationTokenExpires")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
