@@ -60,17 +60,18 @@ builder
     });
 
 // 4) AutoMapper
-builder.Services.AddAutoMapper(typeof(Program), typeof(AccountMapper));
+builder.Services.AddAutoMapper(typeof(Program), typeof(AuthMapper));
 
 // 5) DI for repositories, UnitOfWork, Services
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
-builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddTransient<IEmailService, MailKitEmailService>();
 builder.Services.Configure<FrontendSettings>(builder.Configuration.GetSection("Frontend"));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 // 6) Swagger + security definitions
 builder.Services.AddEndpointsApiExplorer();

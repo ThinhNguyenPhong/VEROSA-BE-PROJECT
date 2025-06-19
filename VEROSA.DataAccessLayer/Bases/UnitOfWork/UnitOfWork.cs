@@ -8,12 +8,12 @@ namespace VEROSA.DataAccessLayer.Bases.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly VerosaBeautyContext _context;
-        public IAccountRepository Accounts { get; }
+        public IAuthRepository Accounts { get; }
 
         public UnitOfWork(VerosaBeautyContext context)
         {
             _context = context;
-            Accounts = new AccountRepository(_context);
+            Accounts = new AuthRepository(_context);
         }
 
         public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

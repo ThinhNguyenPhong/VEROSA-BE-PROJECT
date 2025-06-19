@@ -1,15 +1,10 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using AutoMapper;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using VEROSA.BussinessLogicLayer.PasswordHash;
-using VEROSA.BussinessLogicLayer.Services.Email;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using VEROSA.Common.Enums;
+using VEROSA.Common.Exceptions;
+using VEROSA.Common.Models.Pages;
 using VEROSA.Common.Models.Request;
 using VEROSA.Common.Models.Response;
-using VEROSA.Common.Models.Settings;
 using VEROSA.DataAccessLayer.Bases.UnitOfWork;
 
 namespace VEROSA.BussinessLogicLayer.Services.Account
@@ -18,127 +13,157 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
-        private readonly IPasswordHasher _hasher;
-        private readonly JwtSettings _jwtSettings;
-        private readonly IEmailService _emailer;
-        private readonly string _frontendBase;
+        private readonly ILogger<AccountService> _logger;
 
-        public AccountService(
-            IUnitOfWork uow,
-            IMapper mapper,
-            IPasswordHasher hasher,
-            IOptions<JwtSettings> jwtOpt,
-            IEmailService emailer,
-            IOptions<FrontendSettings> frontOpt
-        )
+        public AccountService(IUnitOfWork uow, IMapper mapper, ILogger<AccountService> logger)
         {
             _uow = uow;
             _mapper = mapper;
-            _hasher = hasher;
-            _jwtSettings = jwtOpt.Value;
-            _emailer = emailer;
-            _frontendBase = frontOpt.Value.BaseUrl;
+            _logger = logger;
         }
 
-        public async Task<AccountResponse> RegisterAsync(RegisterRequest request)
+        public async Task<IEnumerable<AccountResponse>> GetAllAsync()
         {
-            if (await _uow.Accounts.GetByUsernameAsync(request.Username) != null)
-                throw new ApplicationException("Username đã tồn tại.");
-            if (await _uow.Accounts.GetByEmailAsync(request.Email) != null)
-                throw new ApplicationException("Email đã đăng ký.");
-
-            var acct = _mapper.Map<DataAccessLayer.Entities.Account>(request);
-            acct.Id = Guid.NewGuid();
-
-            // sinh confirm token
-            acct.ConfirmationToken = Guid.NewGuid().ToString("N");
-            acct.ConfirmationTokenExpires = DateTime.UtcNow.AddHours(24);
-
-            await _uow.Accounts.AddAsync(acct);
-            await _uow.CommitAsync();
-
-            // gửi mail xác nhận
-            var link = $"{_frontendBase}/confirm?token={acct.ConfirmationToken}";
-            var body =
-                $@"
-                <p>Chào {acct.FirstName},</p>
-                <p>Vui lòng bấm vào <a href=""{link}"">đây</a> để tạo mật khẩu và kích hoạt tài khoản.</p>
-                <p>Link có hiệu lực 24h.</p>";
-            await _emailer.SendEmailAsync(acct.Email, "Xác nhận đăng ký VEROSA", body);
-
-            return _mapper.Map<AccountResponse>(acct);
+            try
+            {
+                var list = await _uow.Accounts.GetAllAsync();
+                return _mapper.Map<IEnumerable<AccountResponse>>(list);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get all accounts");
+                throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+            }
         }
 
-        public async Task<AuthenticationResponse> LoginAsync(LoginRequest request)
+        public async Task<AccountResponse?> GetByIdAsync(Guid id)
         {
-            var acct = await _uow.Accounts.GetByUsernameOrEmailAsync(request.UsernameOrEmail);
-            if (acct == null || !_hasher.Verify(acct.PasswordHash, request.Password))
-                throw new ApplicationException("Invalid credentials.");
-
-            // tạo JWT
-            var claims = new[]
+            try
             {
-                new Claim(JwtRegisteredClaimNames.Sub, acct.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, acct.Username),
-                new Claim(ClaimTypes.Role, acct.Role.ToString()),
-            };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes);
-            var jwt = new JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
-                claims: claims,
-                expires: expires,
-                signingCredentials: creds
-            );
-
-            return new AuthenticationResponse
+                var entity = await _uow.Accounts.GetByIdAsync(id);
+                if (entity == null)
+                    return null;
+                return _mapper.Map<AccountResponse>(entity);
+            }
+            catch (Exception ex)
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(jwt),
-                Expires = expires,
-                Account = _mapper.Map<AccountResponse>(acct),
-            };
+                _logger.LogError(ex, $"Failed to get account by id {id}");
+                throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+            }
         }
 
-        public async Task<AuthenticationResponse> SetPasswordAsync(SetPasswordRequest req)
+        public async Task<AccountResponse> CreateAsync(AccountRequest request)
         {
-            var acct = await _uow.Accounts.GetByConfirmationTokenAsync(req.Token);
-            if (acct == null)
-                throw new ApplicationException("Token không hợp lệ hoặc đã hết hạn.");
-
-            acct.PasswordHash = _hasher.Hash(req.NewPassword);
-            acct.Status = AccountStatus.Active;
-            acct.ConfirmationToken = null;
-            acct.ConfirmationTokenExpires = null;
-            acct.UpdatedAt = DateTime.UtcNow;
-
-            await _uow.CommitAsync();
-
-            // trả JWT
-            var claims = new[]
+            try
             {
-                new Claim(JwtRegisteredClaimNames.Sub, acct.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, acct.Username),
-                new Claim(ClaimTypes.Role, acct.Role.ToString()),
-            };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes);
-            var jwt = new JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
-                claims: claims,
-                expires: expires,
-                signingCredentials: creds
-            );
+                var entity = _mapper.Map<VEROSA.DataAccessLayer.Entities.Account>(request);
+                entity.Id = Guid.NewGuid();
+                entity.CreatedAt = DateTime.UtcNow;
+                entity.UpdatedAt = DateTime.UtcNow;
 
-            return new AuthenticationResponse
+                await _uow.Accounts.AddAsync(entity);
+                await _uow.CommitAsync();
+
+                return _mapper.Map<AccountResponse>(entity);
+            }
+            catch (Exception ex)
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(jwt),
-                Expires = expires,
-                Account = _mapper.Map<AccountResponse>(acct),
-            };
+                _logger.LogError(ex, "Failed to create account");
+                throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        public async Task<bool> UpdateAsync(Guid id, AccountRequest request)
+        {
+            try
+            {
+                var entity = await _uow.Accounts.GetByIdAsync(id);
+                if (entity == null)
+                    return false;
+
+                _mapper.Map(request, entity);
+                entity.UpdatedAt = DateTime.UtcNow;
+                _uow.Accounts.Update(entity);
+                await _uow.CommitAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to update account id {id}");
+                throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            try
+            {
+                var entity = await _uow.Accounts.GetByIdAsync(id);
+                if (entity == null)
+                    return false;
+
+                _uow.Accounts.Delete(entity);
+                await _uow.CommitAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to delete account id {id}");
+                throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        public async Task<PageResult<AccountResponse>> GetWithParamsAsync(
+            string? username,
+            string? email,
+            AccountRole? role,
+            AccountStatus? status,
+            string? sortBy,
+            bool sortDescending,
+            int pageNumber,
+            int pageSize
+        )
+        {
+            try
+            {
+                var all = await _uow.Accounts.FindAccountsAsync(username, email, role, status);
+                if (!all.Any())
+                    throw new AppException(ErrorCode.LIST_EMPTY);
+
+                // Áp dụng sort động
+                IOrderedEnumerable<VEROSA.DataAccessLayer.Entities.Account> sorted;
+                if (!string.IsNullOrWhiteSpace(sortBy))
+                {
+                    var propInfo = typeof(VEROSA.DataAccessLayer.Entities.Account).GetProperty(
+                        sortBy
+                    );
+                    Func<VEROSA.DataAccessLayer.Entities.Account, object?> keySel = a =>
+                        propInfo != null ? propInfo.GetValue(a) : null;
+
+                    sorted = sortDescending ? all.OrderByDescending(keySel) : all.OrderBy(keySel);
+                }
+                else
+                {
+                    sorted = all.OrderByDescending(a => a.CreatedAt);
+                }
+
+                // Paging
+                var paged = sorted.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+                var dtos = _mapper.Map<List<AccountResponse>>(paged);
+                return new PageResult<AccountResponse>(dtos, pageSize, pageNumber, all.Count());
+            }
+            catch (AppException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get accounts with params");
+                throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+            }
         }
     }
 }

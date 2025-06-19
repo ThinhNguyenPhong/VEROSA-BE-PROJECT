@@ -1,12 +1,27 @@
-﻿using VEROSA.Common.Models.Request;
+﻿using VEROSA.Common.Enums;
+using VEROSA.Common.Models.Pages;
+using VEROSA.Common.Models.Request;
 using VEROSA.Common.Models.Response;
 
 namespace VEROSA.BussinessLogicLayer.Services.Account
 {
     public interface IAccountService
     {
-        Task<AccountResponse> RegisterAsync(RegisterRequest request);
-        Task<AuthenticationResponse> LoginAsync(LoginRequest request);
-        Task<AuthenticationResponse> SetPasswordAsync(SetPasswordRequest request);
+        Task<IEnumerable<AccountResponse>> GetAllAsync();
+        Task<AccountResponse?> GetByIdAsync(Guid id);
+        Task<AccountResponse> CreateAsync(AccountRequest request);
+        Task<bool> UpdateAsync(Guid id, AccountRequest request);
+        Task<bool> DeleteAsync(Guid id);
+
+        Task<PageResult<AccountResponse>> GetWithParamsAsync(
+            string? username,
+            string? email,
+            AccountRole? role,
+            AccountStatus? status,
+            string? sortBy,
+            bool sortDescending,
+            int pageNumber,
+            int pageSize
+        );
     }
 }

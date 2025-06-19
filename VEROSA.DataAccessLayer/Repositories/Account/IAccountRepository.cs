@@ -1,10 +1,15 @@
-﻿using VEROSA.DataAccessLayer.Bases.GenericRepo;
-using VEROSA.DataAccessLayer.Entities;
+﻿using VEROSA.Common.Enums;
+using VEROSA.DataAccessLayer.Bases.GenericRepo;
 
-public interface IAccountRepository : IGenericRepository<Account>
+namespace VEROSA.DataAccessLayer.Repositories.Account
 {
-    Task<Account> GetByUsernameAsync(string username);
-    Task<Account> GetByEmailAsync(string email);
-    Task<Account> GetByUsernameOrEmailAsync(string input);
-    Task<Account> GetByConfirmationTokenAsync(string token);
+    public interface IAccountRepository : IGenericRepository<Entities.Account>
+    {
+        Task<IEnumerable<Entities.Account>> FindAccountsAsync(
+            string? username,
+            string? email,
+            AccountRole? role,
+            AccountStatus? status
+        );
+    }
 }

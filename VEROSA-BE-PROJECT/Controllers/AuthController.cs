@@ -7,27 +7,27 @@ using VEROSA.Common.Models.Response;
 namespace VEROSA_BE_PROJECT.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/auths")]
     public class AuthController : ControllerBase
     {
-        private readonly IAccountService _svc;
+        private readonly IAuthService _authService;
 
-        public AuthController(IAccountService svc) => _svc = svc;
+        public AuthController(IAuthService authService) => _authService = authService;
 
         [HttpPost("register")]
-        public async Task<ActionResult<AccountResponse>> Register([FromBody] RegisterRequest req) =>
-            CreatedAtAction(null, await _svc.RegisterAsync(req));
+        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest req) =>
+            CreatedAtAction(null, await _authService.RegisterAsync(req));
 
         [HttpPost("login")]
         public async Task<ActionResult<AuthenticationResponse>> Login(
             [FromBody] LoginRequest req
-        ) => Ok(await _svc.LoginAsync(req));
+        ) => Ok(await _authService.LoginAsync(req));
 
         [HttpPost("set-password")]
         [ProducesResponseType(typeof(AuthenticationResponse), 200)]
         [ProducesResponseType(400)]
         public async Task<ActionResult<AuthenticationResponse>> SetPassword(
             [FromBody] SetPasswordRequest req
-        ) => Ok(await _svc.SetPasswordAsync(req));
+        ) => Ok(await _authService.SetPasswordAsync(req));
     }
 }

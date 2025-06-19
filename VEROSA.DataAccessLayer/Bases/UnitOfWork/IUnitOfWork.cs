@@ -6,7 +6,8 @@ namespace VEROSA.DataAccessLayer.Bases.UnitOfWork
 {
     public interface IUnitOfWork : IDisposable
     {
-        IAccountRepository Accounts { get; }
+        IAuthRepository Accounts { get; }
+
         Task<int> CommitAsync();
     }
 }

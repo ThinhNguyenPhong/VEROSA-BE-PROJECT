@@ -10,6 +10,6 @@ namespace VEROSA.Common.Models.Response
     {
         public string Token { get; set; }
         public DateTime Expires { get; set; }
-        public AccountResponse Account { get; set; }
+        public AuthResponse Account { get; set; }
     }
 }
