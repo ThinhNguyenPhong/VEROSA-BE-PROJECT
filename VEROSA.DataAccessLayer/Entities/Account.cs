@@ -25,8 +25,6 @@ namespace VEROSA.DataAccessLayer.Entities
 
         [Required, MaxLength(20)]
         public string Phone { get; set; }
-
-        // Cho phép NULL khi mới tạo
         public string? PasswordHash { get; set; }
 
         [Required]
@@ -40,8 +38,6 @@ namespace VEROSA.DataAccessLayer.Entities
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-
-        // Quan hệ
         public ICollection<Address> Addresses { get; set; }
         public ICollection<Appointment> CustomerAppointments { get; set; }
         public ICollection<Appointment> ConsultantAppointments { get; set; }

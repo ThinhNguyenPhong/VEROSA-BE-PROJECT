@@ -8,7 +8,7 @@ using VEROSA_BE_PROJECT.Mappers;
 using VEROSA.BussinessLogicLayer.PasswordHash;
 using VEROSA.BussinessLogicLayer.Services.Account;
 using VEROSA.BussinessLogicLayer.Services.Email;
-using VEROSA.Common.Models.JWTSettings;
+using VEROSA.Common.Models.Settings;
 using VEROSA.DataAccessLayer.Bases.GenericRepo;
 using VEROSA.DataAccessLayer.Bases.UnitOfWork;
 using VEROSA.DataAccessLayer.Context;

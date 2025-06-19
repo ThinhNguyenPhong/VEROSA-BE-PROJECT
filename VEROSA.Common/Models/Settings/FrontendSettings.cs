@@ -1,4 +1,4 @@
-﻿namespace VEROSA.Common.Models.JWTSettings
+﻿namespace VEROSA.Common.Models.Settings
 {
     public class FrontendSettings
     {

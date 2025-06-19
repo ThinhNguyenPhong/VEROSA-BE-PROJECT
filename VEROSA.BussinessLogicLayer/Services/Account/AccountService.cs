@@ -7,9 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 using VEROSA.BussinessLogicLayer.PasswordHash;
 using VEROSA.BussinessLogicLayer.Services.Email;
 using VEROSA.Common.Enums;
-using VEROSA.Common.Models.JWTSettings;
 using VEROSA.Common.Models.Request;
 using VEROSA.Common.Models.Response;
+using VEROSA.Common.Models.Settings;
 using VEROSA.DataAccessLayer.Bases.UnitOfWork;
 
 namespace VEROSA.BussinessLogicLayer.Services.Account
