@@ -27,6 +27,9 @@ namespace VEROSA.DataAccessLayer.Entities
         public string Phone { get; set; }
         public string? PasswordHash { get; set; }
 
+        [MaxLength(255)]
+        public string? ProfileImageUrl { get; set; }
+
         [Required]
         public AccountRole Role { get; set; }
 

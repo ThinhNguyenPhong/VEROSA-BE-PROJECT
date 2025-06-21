@@ -76,27 +76,30 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
             if (acct == null || !_hasher.Verify(acct.PasswordHash, request.Password))
                 throw new ApplicationException("Invalid credentials.");
 
+            // emit claim "role" để khớp với RoleClaimType = "role"
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, acct.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, acct.Username),
                 new Claim(ClaimTypes.Role, acct.Role.ToString()),
             };
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes);
-            var jwt = new JwtSecurityToken(
+            var exp = DateTime.UtcNow.AddDays(2);
+
+            var token = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: expires,
+                expires: exp,
                 signingCredentials: creds
             );
 
             return new AuthenticationResponse
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(jwt),
-                Expires = expires,
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expires = exp,
                 Account = _mapper.Map<AuthResponse>(acct),
             };
         }
@@ -112,9 +115,9 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
             acct.ConfirmationToken = null;
             acct.ConfirmationTokenExpires = null;
             acct.UpdatedAt = DateTime.UtcNow;
-
             await _unitOfWork.CommitAsync();
 
+            // emit lại token mới có "role"
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, acct.Id.ToString()),
@@ -123,19 +126,20 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes);
-            var jwt = new JwtSecurityToken(
+            var exp = DateTime.UtcNow.AddDays(2);
+
+            var token = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: expires,
+                expires: exp,
                 signingCredentials: creds
             );
 
             return new AuthenticationResponse
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(jwt),
-                Expires = expires,
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expires = exp,
                 Account = _mapper.Map<AuthResponse>(acct),
             };
         }

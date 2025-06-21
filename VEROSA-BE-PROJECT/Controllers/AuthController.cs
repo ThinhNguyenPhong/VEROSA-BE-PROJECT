@@ -1,33 +1,70 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VEROSA.BussinessLogicLayer.Services.Account;
 using VEROSA.Common.Models.ApiResponse;
+using VEROSA.Common.Models.Pages;
 using VEROSA.Common.Models.Request;
 using VEROSA.Common.Models.Response;
 
 namespace VEROSA_BE_PROJECT.Controllers
 {
     [ApiController]
-    [Route("api/auths")]
+    [Route("api/v1/auths")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthService authService) => _authService = authService;
+        public AuthController(IAuthService authService, ILogger<AuthController> logger)
+        {
+            _authService = authService;
+            _logger = logger;
+        }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest req) =>
-            CreatedAtAction(null, await _authService.RegisterAsync(req));
+        public async Task<IActionResult> Register([FromBody] RegisterRequest req)
+        {
+            var result = await _authService.RegisterAsync(req);
+            return CreatedAtAction(
+                nameof(Register),
+                null,
+                new ApiResponse<PageResult<AccountResponse>>
+                {
+                    Code = StatusCodes.Status201Created,
+                    Success = true,
+                    Message = "Account registered successfully",
+                    Data = result,
+                }
+            );
+        }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthenticationResponse>> Login(
-            [FromBody] LoginRequest req
-        ) => Ok(await _authService.LoginAsync(req));
+        public async Task<IActionResult> Login([FromBody] LoginRequest req)
+        {
+            var result = await _authService.LoginAsync(req);
+            return Ok(
+                new ApiResponse<PageResult<AccountResponse>>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Success = true,
+                    Message = "Logged in successfully",
+                    Data = result,
+                }
+            );
+        }
 
         [HttpPost("set-password")]
-        [ProducesResponseType(typeof(AuthenticationResponse), 200)]
-        [ProducesResponseType(400)]
-        public async Task<ActionResult<AuthenticationResponse>> SetPassword(
-            [FromBody] SetPasswordRequest req
-        ) => Ok(await _authService.SetPasswordAsync(req));
+        public async Task<IActionResult> SetPassword([FromBody] SetPasswordRequest req)
+        {
+            var result = await _authService.SetPasswordAsync(req);
+            return Ok(
+                new ApiResponse<PageResult<AccountResponse>>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Success = true,
+                    Message = "Password has been set successfully",
+                    Data = result,
+                }
+            );
+        }
     }
 }

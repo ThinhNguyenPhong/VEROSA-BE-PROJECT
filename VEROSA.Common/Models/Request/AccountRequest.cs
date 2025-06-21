@@ -14,6 +14,7 @@ namespace VEROSA.Common.Models.Request
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public DateTime DateOfBirth { get; set; }
+        public string ProfileImageUrl { get; set; } = null!;
         public string Phone { get; set; } = null!;
         public AccountRole Role { get; set; }
         public AccountStatus Status { get; set; }
