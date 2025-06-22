@@ -1,4 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using VEROSA.Common.Enums;
 using VEROSA.DataAccessLayer.Bases.GenericRepo;
 
 namespace VEROSA.DataAccessLayer.Repositories.Account
@@ -8,24 +14,28 @@ namespace VEROSA.DataAccessLayer.Repositories.Account
         public AccountRepository(DbContext context)
             : base(context) { }
 
-        public async Task<Entities.Account> GetByUsernameAsync(string username) =>
-            await _context.Set<Entities.Account>().FirstOrDefaultAsync(a => a.Username == username);
+        public async Task<IEnumerable<Entities.Account>> FindAccountsAsync(
+            string? username,
+            string? email,
+            AccountRole? role,
+            AccountStatus? status
+        )
+        {
+            IQueryable<Entities.Account> q = _context.Set<Entities.Account>().AsNoTracking();
 
-        public async Task<Entities.Account> GetByEmailAsync(string email) =>
-            await _context.Set<Entities.Account>().FirstOrDefaultAsync(a => a.Email == email);
+            if (!string.IsNullOrWhiteSpace(username))
+                q = q.Where(a => a.Username.Contains(username));
 
-        public Task<Entities.Account> GetByUsernameOrEmailAsync(string input) =>
-            _context
-                .Set<Entities.Account>()
-                .FirstOrDefaultAsync(a => a.Username == input || a.Email == input);
+            if (!string.IsNullOrWhiteSpace(email))
+                q = q.Where(a => a.Email.Contains(email));
 
-        public Task<Entities.Account> GetByConfirmationTokenAsync(string token) =>
-            _context
-                .Set<Entities.Account>()
-                .FirstOrDefaultAsync(a =>
-                    a.ConfirmationToken == token
-                    && a.ConfirmationTokenExpires != null
-                    && a.ConfirmationTokenExpires > DateTime.UtcNow
-                );
+            if (role.HasValue)
+                q = q.Where(a => a.Role == role.Value);
+
+            if (status.HasValue)
+                q = q.Where(a => a.Status == status.Value);
+
+            return await q.OrderByDescending(a => a.CreatedAt).ToListAsync();
+        }
     }
 }

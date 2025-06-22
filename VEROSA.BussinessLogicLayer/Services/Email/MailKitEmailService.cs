@@ -2,7 +2,7 @@
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using VEROSA.Common.Models.JWTSettings;
+using VEROSA.Common.Models.Settings;
 
 namespace VEROSA.BussinessLogicLayer.Services.Email
 {
@@ -22,14 +22,13 @@ namespace VEROSA.BussinessLogicLayer.Services.Email
 
             using var client = new SmtpClient();
 
-            // Chọn đúng SecureSocketOptions
             SecureSocketOptions socketOptions;
             if (_opts.Port == 465)
-                socketOptions = SecureSocketOptions.SslOnConnect; // SSL ngay từ đầu
+                socketOptions = SecureSocketOptions.SslOnConnect;
             else if (_opts.Port == 587)
-                socketOptions = SecureSocketOptions.StartTls; // STARTTLS sau CONNECT
+                socketOptions = SecureSocketOptions.StartTls;
             else
-                socketOptions = SecureSocketOptions.Auto; // để MailKit tự thử
+                socketOptions = SecureSocketOptions.Auto;
 
             await client.ConnectAsync(_opts.Host, _opts.Port, socketOptions);
             await client.AuthenticateAsync(_opts.Username, _opts.Password);

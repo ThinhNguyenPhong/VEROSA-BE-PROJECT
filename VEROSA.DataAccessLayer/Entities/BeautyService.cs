@@ -15,11 +15,12 @@ namespace VEROSA.DataAccessLayer.Entities
         [Required, MaxLength(100)]
         public string Name { get; set; }
 
+        [MaxLength(500)]
+        public string? ImageUrl { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public ICollection<Appointment> Appointments { get; set; }
-        public ICollection<Image> Images { get; set; }
     }
 }

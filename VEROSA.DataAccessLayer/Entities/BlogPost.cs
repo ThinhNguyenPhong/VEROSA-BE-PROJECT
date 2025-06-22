@@ -19,13 +19,14 @@ namespace VEROSA.DataAccessLayer.Entities
         [Required]
         public string Content { get; set; }
 
+        [MaxLength(500)]
+        public string? ImageUrl { get; set; }
+
         [Required]
         public PostType Type { get; set; }
         public Guid AuthorId { get; set; }
         public Account Author { get; set; }
 
         public DateTime PublishedAt { get; set; }
-
-        public ICollection<Image> Images { get; set; }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VEROSA.Common.Models.JWTSettings
+namespace VEROSA.Common.Models.Settings
 {
     public class SmtpSettings
     {

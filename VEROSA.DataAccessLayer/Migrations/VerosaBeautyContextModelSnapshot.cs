@@ -68,6 +68,10 @@ namespace VEROSA.DataAccessLayer.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
+                    b.Property<string>("ProfileImageUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -114,12 +118,7 @@ namespace VEROSA.DataAccessLayer.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("State")
+                    b.Property<string>("District")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
@@ -178,11 +177,14 @@ namespace VEROSA.DataAccessLayer.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -190,11 +192,11 @@ namespace VEROSA.DataAccessLayer.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Services");
+                    b.ToTable("Services", (string)null);
                 });
 
             modelBuilder.Entity("VEROSA.DataAccessLayer.Entities.BlogPost", b =>
@@ -209,6 +211,10 @@ namespace VEROSA.DataAccessLayer.Migrations
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("PublishedAt")
                         .HasColumnType("datetime(6)");
@@ -328,43 +334,6 @@ namespace VEROSA.DataAccessLayer.Migrations
                     b.ToTable("Favorites");
                 });
 
-            modelBuilder.Entity("VEROSA.DataAccessLayer.Entities.Image", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("AltText")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid?>("BlogPostId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<Guid?>("ProductId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("ServiceId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BlogPostId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("Images");
-                });
-
             modelBuilder.Entity("VEROSA.DataAccessLayer.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -463,19 +432,22 @@ namespace VEROSA.DataAccessLayer.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Stock")
                         .HasColumnType("int");
@@ -636,27 +608,6 @@ namespace VEROSA.DataAccessLayer.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("VEROSA.DataAccessLayer.Entities.Image", b =>
-                {
-                    b.HasOne("VEROSA.DataAccessLayer.Entities.BlogPost", "BlogPost")
-                        .WithMany("Images")
-                        .HasForeignKey("BlogPostId");
-
-                    b.HasOne("VEROSA.DataAccessLayer.Entities.Product", "Product")
-                        .WithMany("Images")
-                        .HasForeignKey("ProductId");
-
-                    b.HasOne("VEROSA.DataAccessLayer.Entities.BeautyService", "Service")
-                        .WithMany("Images")
-                        .HasForeignKey("ServiceId");
-
-                    b.Navigation("BlogPost");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Service");
-                });
-
             modelBuilder.Entity("VEROSA.DataAccessLayer.Entities.Order", b =>
                 {
                     b.HasOne("VEROSA.DataAccessLayer.Entities.Account", "Customer")
@@ -777,13 +728,6 @@ namespace VEROSA.DataAccessLayer.Migrations
             modelBuilder.Entity("VEROSA.DataAccessLayer.Entities.BeautyService", b =>
                 {
                     b.Navigation("Appointments");
-
-                    b.Navigation("Images");
-                });
-
-            modelBuilder.Entity("VEROSA.DataAccessLayer.Entities.BlogPost", b =>
-                {
-                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("VEROSA.DataAccessLayer.Entities.DiscountCode", b =>
@@ -802,8 +746,6 @@ namespace VEROSA.DataAccessLayer.Migrations
             modelBuilder.Entity("VEROSA.DataAccessLayer.Entities.Product", b =>
                 {
                     b.Navigation("Favorites");
-
-                    b.Navigation("Images");
 
                     b.Navigation("OrderItems");
 
