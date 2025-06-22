@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace VEROSA.Common.Models.Request
 {
-    public class BeautyServiceRequest
+    public class ProductCategoryRequest
     {
         public string Name { get; set; } = null!;
-        public string? Description { get; set; }
-        public decimal Price { get; set; }
-        public string? ImageUrl { get; set; }
     }
 }

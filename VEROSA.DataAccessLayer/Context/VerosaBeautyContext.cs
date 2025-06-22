@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using VEROSA.DataAccessLayer.Entities;
 
@@ -18,7 +22,6 @@ namespace VEROSA.DataAccessLayer.Context
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
-        public DbSet<Image> Images { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -28,6 +31,7 @@ namespace VEROSA.DataAccessLayer.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Áp dụng char(36) và GeneratedOnAdd cho tất cả PK Guid
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 var pk = entityType.FindPrimaryKey();
@@ -42,6 +46,7 @@ namespace VEROSA.DataAccessLayer.Context
                 }
             }
 
+            // Account cấu hình...
             modelBuilder.Entity<Account>(entity =>
             {
                 entity.ToTable("Accounts");
@@ -49,54 +54,78 @@ namespace VEROSA.DataAccessLayer.Context
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
-
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
-
                 entity.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
-
                 entity.Property(e => e.LastName).IsRequired().HasMaxLength(50);
-
                 entity.Property(e => e.DateOfBirth).IsRequired().HasColumnType("datetime");
-
                 entity.Property(e => e.Phone).IsRequired().HasMaxLength(20);
-
                 entity.Property(e => e.PasswordHash).HasColumnType("text").IsRequired(false);
-
                 entity.Property(e => e.Role).HasConversion<string>().IsRequired();
-
                 entity.Property(e => e.Status).HasConversion<string>().IsRequired();
-
                 entity
                     .Property(e => e.ConfirmationToken)
                     .HasMaxLength(255)
                     .IsUnicode(false)
                     .IsRequired(false);
-
                 entity
                     .Property(e => e.ConfirmationTokenExpires)
                     .HasColumnType("datetime")
                     .IsRequired(false);
-
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime").ValueGeneratedOnAdd();
-
                 entity
                     .Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
                     .ValueGeneratedOnAddOrUpdate();
             });
 
-            modelBuilder.Entity<BlogPost>().Property(b => b.Type).HasConversion<string>();
+            // BlogPost thêm ImageUrl
+            modelBuilder.Entity<BlogPost>(entity =>
+            {
+                entity.Property(b => b.Type).HasConversion<string>();
+                entity
+                    .Property(b => b.ImageUrl)
+                    .HasColumnType("text")
+                    .HasMaxLength(500)
+                    .IsRequired(false);
+            });
 
+            // BeautyService (Services) thêm ImageUrl
+            modelBuilder.Entity<BeautyService>(entity =>
+            {
+                entity.ToTable("Services");
+                entity.Property(s => s.Name).IsRequired().HasMaxLength(100);
+                entity.Property(s => s.Description).IsRequired(false);
+                entity.Property(s => s.Price).HasColumnType("decimal(18,2)");
+                entity.Property(s => s.CreatedAt).HasColumnType("datetime");
+                entity
+                    .Property(s => s.ImageUrl)
+                    .HasColumnType("text")
+                    .HasMaxLength(500)
+                    .IsRequired(false);
+            });
+
+            // Product thêm ImageUrl
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.Property(p => p.Name).IsRequired().HasMaxLength(200);
+                entity.Property(p => p.Description).IsRequired(false);
+                entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.CreatedAt).HasColumnType("datetime");
+                entity
+                    .Property(p => p.ImageUrl)
+                    .HasColumnType("text")
+                    .HasMaxLength(500)
+                    .IsRequired(false);
+            });
+
+            // Cấu hình Payment, DiscountCode, SupportTicket, Appointment...
             modelBuilder.Entity<Payment>(entity =>
             {
                 entity.Property(p => p.Method).HasConversion<string>();
                 entity.Property(p => p.Status).HasConversion<string>();
             });
-
-            modelBuilder.Entity<SupportTicket>().Property(s => s.Status).HasConversion<string>();
-
             modelBuilder.Entity<DiscountCode>().Property(d => d.Type).HasConversion<string>();
-
+            modelBuilder.Entity<SupportTicket>().Property(s => s.Status).HasConversion<string>();
             modelBuilder.Entity<Appointment>(entity =>
             {
                 entity
@@ -121,6 +150,7 @@ namespace VEROSA.DataAccessLayer.Context
         )
         {
             var now = DateTime.UtcNow;
+            // Tự động set CreatedAt, UpdatedAt cho Account
             foreach (var entry in ChangeTracker.Entries<Account>())
             {
                 if (entry.State == EntityState.Added)
@@ -133,7 +163,6 @@ namespace VEROSA.DataAccessLayer.Context
                     entry.Entity.UpdatedAt = now;
                 }
             }
-
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 

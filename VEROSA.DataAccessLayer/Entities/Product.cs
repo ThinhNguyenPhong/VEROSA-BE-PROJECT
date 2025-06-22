@@ -16,6 +16,9 @@ namespace VEROSA.DataAccessLayer.Entities
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
+
+        [MaxLength(500)]
+        public string? ImageUrl { get; set; }
         public int Stock { get; set; }
         public DateTime CreatedAt { get; set; }
         public Guid CategoryId { get; set; }
@@ -23,6 +26,5 @@ namespace VEROSA.DataAccessLayer.Entities
         public ICollection<Review> Reviews { get; set; }
         public ICollection<Favorite> Favorites { get; set; }
         public ICollection<OrderItem> OrderItems { get; set; }
-        public ICollection<Image> Images { get; set; }
     }
 }

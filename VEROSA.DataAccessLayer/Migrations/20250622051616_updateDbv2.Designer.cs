@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VEROSA.DataAccessLayer.Context;
 
@@ -11,9 +12,11 @@ using VEROSA.DataAccessLayer.Context;
 namespace VEROSA.DataAccessLayer.Migrations
 {
     [DbContext(typeof(VerosaBeautyContext))]
-    partial class VerosaBeautyContextModelSnapshot : ModelSnapshot
+    [Migration("20250622051616_updateDbv2")]
+    partial class updateDbv2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

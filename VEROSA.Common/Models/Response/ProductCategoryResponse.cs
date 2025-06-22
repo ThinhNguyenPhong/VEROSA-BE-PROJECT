@@ -6,13 +6,9 @@ using System.Threading.Tasks;
 
 namespace VEROSA.Common.Models.Response
 {
-    public class BeautyServiceResponse
+    public class ProductCategoryResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
-        public string? Description { get; set; }
-        public decimal Price { get; set; }
-        public string? ImageUrl { get; set; }
-        public DateTime CreatedAt { get; set; }
     }
 }

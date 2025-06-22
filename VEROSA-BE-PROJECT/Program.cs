@@ -1,23 +1,22 @@
-﻿using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using VEROSA_BE_PROJECT.Mappers;
 using VEROSA_BE_PROJECT.Middlewares;
 using VEROSA.BussinessLogicLayer.PasswordHash;
 using VEROSA.BussinessLogicLayer.Services.Account;
 using VEROSA.BussinessLogicLayer.Services.Address;
 using VEROSA.BussinessLogicLayer.Services.BeautyService;
 using VEROSA.BussinessLogicLayer.Services.Email;
+using VEROSA.BussinessLogicLayer.Services.Product;
 using VEROSA.Common.Models.Settings;
 using VEROSA.DataAccessLayer.Bases.GenericRepo;
 using VEROSA.DataAccessLayer.Bases.UnitOfWork;
 using VEROSA.DataAccessLayer.Context;
-using VEROSA.DataAccessLayer.Repositories.BeautyService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,9 +73,15 @@ builder.Services.AddSingleton<
 builder.Services.AddAuthorization();
 
 // 4) AutoMapper
-builder.Services.AddAutoMapper(typeof(Program), typeof(AuthService));
+builder.Services.AddAutoMapper(
+    typeof(Program),
+    typeof(AuthService),
+    typeof(BeautyServiceMapper),
+    typeof(AccountMapper),
+    typeof(AddressMapper)
+);
 
-// 5) DI: Repos, UoW, Services, etc.
+// 5) DI: Repos,UnitOfWork , Services.
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
@@ -85,6 +90,8 @@ builder.Services.AddScoped<IEmailService, MailKitEmailService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IBeautyServiceService, BeautyServiceService>();
+builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 // 6) Swagger
 builder.Services.AddEndpointsApiExplorer();
