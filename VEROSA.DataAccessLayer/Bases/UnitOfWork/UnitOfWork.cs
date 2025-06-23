@@ -4,7 +4,12 @@ using VEROSA.DataAccessLayer.Entities;
 using VEROSA.DataAccessLayer.Repositories.Account;
 using VEROSA.DataAccessLayer.Repositories.Address;
 using VEROSA.DataAccessLayer.Repositories.BeautyService;
+using VEROSA.DataAccessLayer.Repositories.BlogPost;
+using VEROSA.DataAccessLayer.Repositories.Contact;
+using VEROSA.DataAccessLayer.Repositories.Favorite;
 using VEROSA.DataAccessLayer.Repositories.Product;
+using VEROSA.DataAccessLayer.Repositories.Review;
+using VEROSA.DataAccessLayer.Repositories.SupportTicket;
 
 namespace VEROSA.DataAccessLayer.Bases.UnitOfWork
 {
@@ -16,6 +21,11 @@ namespace VEROSA.DataAccessLayer.Bases.UnitOfWork
         public IBeautyServiceRepository BeautyServices { get; }
         public IProductCategoryRepository ProductCategories { get; }
         public IProductRepository Products { get; }
+        public IBlogPostRepository BlogPosts { get; }
+        public IContactRepository Contacts { get; }
+        public IFavoriteRepository Favorites { get; }
+        public IReviewRepository Reviews { get; }
+        public ISupportTicketRepository SupportTickets { get; }
 
         public UnitOfWork(VerosaBeautyContext context)
         {
@@ -25,6 +35,11 @@ namespace VEROSA.DataAccessLayer.Bases.UnitOfWork
             BeautyServices = new BeautyServiceRepository(_context);
             ProductCategories = new ProductCategoryRepository(_context);
             Products = new ProductRepository(_context);
+            BlogPosts = new BlogPostRepository(_context);
+            Contacts = new ContactRepository(_context);
+            Favorites = new FavoriteRepository(_context);
+            Reviews = new ReviewRepository(_context);
+            SupportTickets = new SupportTicketRepository(_context);
         }
 
         public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

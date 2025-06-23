@@ -11,8 +11,13 @@ using VEROSA.BussinessLogicLayer.PasswordHash;
 using VEROSA.BussinessLogicLayer.Services.Account;
 using VEROSA.BussinessLogicLayer.Services.Address;
 using VEROSA.BussinessLogicLayer.Services.BeautyService;
+using VEROSA.BussinessLogicLayer.Services.BlogPost;
+using VEROSA.BussinessLogicLayer.Services.Contact;
 using VEROSA.BussinessLogicLayer.Services.Email;
+using VEROSA.BussinessLogicLayer.Services.Favorite;
 using VEROSA.BussinessLogicLayer.Services.Product;
+using VEROSA.BussinessLogicLayer.Services.Review;
+using VEROSA.BussinessLogicLayer.Services.SupportTicket;
 using VEROSA.Common.Models.Settings;
 using VEROSA.DataAccessLayer.Bases.GenericRepo;
 using VEROSA.DataAccessLayer.Bases.UnitOfWork;
@@ -78,7 +83,14 @@ builder.Services.AddAutoMapper(
     typeof(AuthService),
     typeof(BeautyServiceMapper),
     typeof(AccountMapper),
-    typeof(AddressMapper)
+    typeof(AddressMapper),
+    typeof(BlogPostMapper),
+    typeof(ProductCategoryMapper),
+    typeof(ProductMapper),
+    typeof(ContactMapper),
+    typeof(FavoriteMapper),
+    typeof(ReviewMapper),
+    typeof(SupportTicketMapper)
 );
 
 // 5) DI: Repos,UnitOfWork , Services.
@@ -92,6 +104,11 @@ builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IBeautyServiceService, BeautyServiceService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IBlogPostService, BlogPostService>();
+builder.Services.AddScoped<IContactService, ContactService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<ISupportTicketService, SupportTicketService>();
 
 // 6) Swagger
 builder.Services.AddEndpointsApiExplorer();
