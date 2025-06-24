@@ -15,13 +15,13 @@ namespace VEROSA.BussinessLogicLayer.Services.Review
 {
     public class ReviewService : IReviewService
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<ReviewService> _logger;
 
-        public ReviewService(IUnitOfWork uow, IMapper mapper, ILogger<ReviewService> logger)
+        public ReviewService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<ReviewService> logger)
         {
-            _uow = uow;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
         }
@@ -30,7 +30,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Review
         {
             try
             {
-                var list = await _uow.Reviews.GetAllAsync();
+                var list = await _unitOfWork.Reviews.GetAllAsync();
                 return _mapper.Map<IEnumerable<ReviewResponse>>(list);
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Review
         {
             try
             {
-                var e = await _uow.Reviews.GetByIdAsync(id);
+                var e = await _unitOfWork.Reviews.GetByIdAsync(id);
                 if (e == null)
                     return null;
                 return _mapper.Map<ReviewResponse>(e);
@@ -63,8 +63,8 @@ namespace VEROSA.BussinessLogicLayer.Services.Review
                 var e = _mapper.Map<DataAccessLayer.Entities.Review>(req);
                 e.Id = Guid.NewGuid();
                 e.CreatedAt = DateTime.UtcNow;
-                await _uow.Reviews.AddAsync(e);
-                await _uow.CommitAsync();
+                await _unitOfWork.Reviews.AddAsync(e);
+                await _unitOfWork.CommitAsync();
                 return _mapper.Map<ReviewResponse>(e);
             }
             catch (Exception ex)
@@ -78,12 +78,12 @@ namespace VEROSA.BussinessLogicLayer.Services.Review
         {
             try
             {
-                var e = await _uow.Reviews.GetByIdAsync(id);
+                var e = await _unitOfWork.Reviews.GetByIdAsync(id);
                 if (e == null)
                     return false;
                 _mapper.Map(req, e);
-                _uow.Reviews.Update(e);
-                await _uow.CommitAsync();
+                _unitOfWork.Reviews.Update(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -97,11 +97,11 @@ namespace VEROSA.BussinessLogicLayer.Services.Review
         {
             try
             {
-                var e = await _uow.Reviews.GetByIdAsync(id);
+                var e = await _unitOfWork.Reviews.GetByIdAsync(id);
                 if (e == null)
                     return false;
-                _uow.Reviews.Delete(e);
-                await _uow.CommitAsync();
+                _unitOfWork.Reviews.Delete(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -125,7 +125,12 @@ namespace VEROSA.BussinessLogicLayer.Services.Review
             try
             {
                 var all = (
-                    await _uow.Reviews.FindReviewsAsync(productId, customerId, minRating, maxRating)
+                    await _unitOfWork.Reviews.FindReviewsAsync(
+                        productId,
+                        customerId,
+                        minRating,
+                        maxRating
+                    )
                 ).ToList();
                 if (!all.Any())
                     throw new AppException(ErrorCode.LIST_EMPTY);

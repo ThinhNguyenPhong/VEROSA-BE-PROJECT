@@ -13,15 +13,15 @@ namespace VEROSA_BE_PROJECT.Controllers
     [Route("api/v1/support-tickets")]
     public class SupportTicketController : ControllerBase
     {
-        private readonly ISupportTicketService _svc;
+        private readonly ISupportTicketService _supportTicketService;
         private readonly ILogger<SupportTicketController> _logger;
 
         public SupportTicketController(
-            ISupportTicketService svc,
+            ISupportTicketService supportTicketService,
             ILogger<SupportTicketController> logger
         )
         {
-            _svc = svc;
+            _supportTicketService = supportTicketService;
             _logger = logger;
         }
 
@@ -36,7 +36,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             [FromQuery(Name = "page_size")] int pageSize = 10
         )
         {
-            var page = await _svc.GetWithParamsAsync(
+            var page = await _supportTicketService.GetWithParamsAsync(
                 customerId,
                 status,
                 sortBy,
@@ -59,7 +59,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var dto = await _svc.GetByIdAsync(id);
+            var dto = await _supportTicketService.GetByIdAsync(id);
             if (dto == null)
             {
                 _logger.LogWarning($"Ticket not found with id {id}");
@@ -88,7 +88,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Customer")]
         public async Task<IActionResult> Create([FromBody] SupportTicketRequest req)
         {
-            var created = await _svc.CreateAsync(req);
+            var created = await _supportTicketService.CreateAsync(req);
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
@@ -106,7 +106,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Staff,Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] SupportTicketRequest req)
         {
-            if (!await _svc.UpdateAsync(id, req))
+            if (!await _supportTicketService.UpdateAsync(id, req))
             {
                 _logger.LogWarning($"Failed to update ticket with id {id}");
                 return NotFound(
@@ -126,7 +126,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            if (!await _svc.DeleteAsync(id))
+            if (!await _supportTicketService.DeleteAsync(id))
             {
                 _logger.LogWarning($"Failed to delete ticket with id {id}");
                 return NotFound(

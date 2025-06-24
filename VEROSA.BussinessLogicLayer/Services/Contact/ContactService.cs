@@ -15,13 +15,17 @@ namespace VEROSA.BussinessLogicLayer.Services.Contact
 {
     public class ContactService : IContactService
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<ContactService> _logger;
 
-        public ContactService(IUnitOfWork uow, IMapper mapper, ILogger<ContactService> logger)
+        public ContactService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ILogger<ContactService> logger
+        )
         {
-            _uow = uow;
+            _unitOfWork = _unitOfWork;
             _mapper = mapper;
             _logger = logger;
         }
@@ -30,7 +34,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Contact
         {
             try
             {
-                var list = await _uow.Contacts.GetAllAsync();
+                var list = await _unitOfWork.Contacts.GetAllAsync();
                 return _mapper.Map<IEnumerable<ContactResponse>>(list);
             }
             catch (Exception ex)
@@ -44,7 +48,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Contact
         {
             try
             {
-                var e = await _uow.Contacts.GetByIdAsync(id);
+                var e = await _unitOfWork.Contacts.GetByIdAsync(id);
                 if (e == null)
                     return null;
                 return _mapper.Map<ContactResponse>(e);
@@ -63,8 +67,8 @@ namespace VEROSA.BussinessLogicLayer.Services.Contact
                 var e = _mapper.Map<DataAccessLayer.Entities.Contact>(req);
                 e.Id = Guid.NewGuid();
                 e.CreatedAt = DateTime.UtcNow;
-                await _uow.Contacts.AddAsync(e);
-                await _uow.CommitAsync();
+                await _unitOfWork.Contacts.AddAsync(e);
+                await _unitOfWork.CommitAsync();
                 return _mapper.Map<ContactResponse>(e);
             }
             catch (Exception ex)
@@ -78,12 +82,12 @@ namespace VEROSA.BussinessLogicLayer.Services.Contact
         {
             try
             {
-                var e = await _uow.Contacts.GetByIdAsync(id);
+                var e = await _unitOfWork.Contacts.GetByIdAsync(id);
                 if (e == null)
                     return false;
                 _mapper.Map(req, e);
-                _uow.Contacts.Update(e);
-                await _uow.CommitAsync();
+                _unitOfWork.Contacts.Update(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -97,11 +101,11 @@ namespace VEROSA.BussinessLogicLayer.Services.Contact
         {
             try
             {
-                var e = await _uow.Contacts.GetByIdAsync(id);
+                var e = await _unitOfWork.Contacts.GetByIdAsync(id);
                 if (e == null)
                     return false;
-                _uow.Contacts.Delete(e);
-                await _uow.CommitAsync();
+                _unitOfWork.Contacts.Delete(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -123,7 +127,9 @@ namespace VEROSA.BussinessLogicLayer.Services.Contact
         {
             try
             {
-                var all = (await _uow.Contacts.FindContactsAsync(name, email, isResolved)).ToList();
+                var all = (
+                    await _unitOfWork.Contacts.FindContactsAsync(name, email, isResolved)
+                ).ToList();
                 if (!all.Any())
                     throw new AppException(ErrorCode.LIST_EMPTY);
 

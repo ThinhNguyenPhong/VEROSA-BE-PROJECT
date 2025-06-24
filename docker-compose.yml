@@ -1,27 +1,25 @@
-version: '3.8'
-
 services:
+  db:
+    image: mysql:8.0.33
+    environment:
+      MYSQL_ROOT_PASSWORD: T4110037789t
+      MYSQL_DATABASE: verosabeautydb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
   api:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "3307:3306"
     environment:
-      - ConnectionStrings__DefaultConnection=Server=db;Database=verosabeauty;User=root;Password=your_password;
+      - ConnectionStrings__DefaultConnection=Server=db;Database=verosabeautydb;User=root;Password=T4110037789t;
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - db
-
-  db:
-    image: mysql:8.0.33
-    environment:
-      MYSQL_ROOT_PASSWORD: your_password
-      MYSQL_DATABASE: verosabeauty
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
 
 volumes:
   mysql-data:

@@ -9,16 +9,19 @@ using VEROSA.Common.Models.Response;
 
 namespace VEROSA_BE_PROJECT.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/favorites")]
     [ApiController]
     public class FavoriteController : ControllerBase
     {
-        private readonly IFavoriteService _svc;
+        private readonly IFavoriteService _favoriteService;
         private readonly ILogger<FavoriteController> _logger;
 
-        public FavoriteController(IFavoriteService svc, ILogger<FavoriteController> logger)
+        public FavoriteController(
+            IFavoriteService favoriteService,
+            ILogger<FavoriteController> logger
+        )
         {
-            _svc = svc;
+            _favoriteService = favoriteService;
             _logger = logger;
         }
 
@@ -33,7 +36,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             [FromQuery(Name = "page_size")] int pageSize = 10
         )
         {
-            var page = await _svc.GetWithParamsAsync(
+            var page = await _favoriteService.GetWithParamsAsync(
                 customerId,
                 productId,
                 sortBy,
@@ -56,7 +59,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var dto = await _svc.GetByIdAsync(id);
+            var dto = await _favoriteService.GetByIdAsync(id);
             if (dto == null)
             {
                 _logger.LogWarning($"Favorite not found with id {id}");
@@ -85,7 +88,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Customer")]
         public async Task<IActionResult> Create([FromBody] FavoriteRequest req)
         {
-            var created = await _svc.CreateAsync(req);
+            var created = await _favoriteService.CreateAsync(req);
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
@@ -103,7 +106,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Customer,Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            if (!await _svc.DeleteAsync(id))
+            if (!await _favoriteService.DeleteAsync(id))
             {
                 _logger.LogWarning($"Failed to delete favorite with id {id}");
                 return NotFound(

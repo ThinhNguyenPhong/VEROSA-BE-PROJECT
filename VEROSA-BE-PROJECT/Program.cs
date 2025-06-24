@@ -148,6 +148,22 @@ builder.Services.AddSwaggerGen(c =>
     );
 });
 
+//CORS: Chỉ cho phép frontend từ localhost:5173
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "AllowFrontend",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:5173", "https://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials(); // ➜ Cần nếu FE gửi cookie hoặc Authorization
+        }
+    );
+});
+
 // 7) Controllers
 builder.Services.AddControllers();
 
@@ -158,7 +174,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"));
 }
-
+app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

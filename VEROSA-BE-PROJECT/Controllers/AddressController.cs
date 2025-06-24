@@ -12,12 +12,12 @@ namespace VEROSA_BE_PROJECT.Controllers
     [Route("api/v1/addresses")]
     public class AddressController : ControllerBase
     {
-        private readonly IAddressService _svc;
+        private readonly IAddressService _addressService;
         private readonly ILogger<AddressController> _logger;
 
-        public AddressController(IAddressService svc, ILogger<AddressController> logger)
+        public AddressController(IAddressService addressService, ILogger<AddressController> logger)
         {
-            _svc = svc;
+            _addressService = addressService;
             _logger = logger;
         }
 
@@ -35,7 +35,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             [FromQuery(Name = "page_size")] int pageSize = 10
         )
         {
-            var page = await _svc.GetWithParamsAsync(
+            var page = await _addressService.GetWithParamsAsync(
                 accountId,
                 street,
                 city,
@@ -61,7 +61,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "ROLE_ADMIN,ROLE_MANAGER")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var dto = await _svc.GetByIdAsync(id);
+            var dto = await _addressService.GetByIdAsync(id);
             if (dto == null)
             {
                 _logger.LogWarning($"Address not found with id {id}");
@@ -91,7 +91,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "ROLE_ADMIN")]
         public async Task<IActionResult> Create([FromBody] AddressRequest request)
         {
-            var created = await _svc.CreateAsync(request);
+            var created = await _addressService.CreateAsync(request);
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
@@ -109,7 +109,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "ROLE_ADMIN")]
         public async Task<IActionResult> Update(Guid id, [FromBody] AddressRequest request)
         {
-            if (!await _svc.UpdateAsync(id, request))
+            if (!await _addressService.UpdateAsync(id, request))
             {
                 _logger.LogWarning($"Failed to update address with id {id}");
                 return NotFound(
@@ -129,7 +129,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "ROLE_ADMIN")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            if (!await _svc.DeleteAsync(id))
+            if (!await _addressService.DeleteAsync(id))
             {
                 _logger.LogWarning($"Failed to delete address with id {id}");
                 return NotFound(

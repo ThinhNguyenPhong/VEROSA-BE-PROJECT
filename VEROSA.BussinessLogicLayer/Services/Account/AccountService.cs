@@ -11,13 +11,17 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
 {
     public class AccountService : IAccountService
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<AccountService> _logger;
 
-        public AccountService(IUnitOfWork uow, IMapper mapper, ILogger<AccountService> logger)
+        public AccountService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ILogger<AccountService> logger
+        )
         {
-            _uow = uow;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
         }
@@ -26,7 +30,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
         {
             try
             {
-                var list = await _uow.Accounts.GetAllAsync();
+                var list = await _unitOfWork.Accounts.GetAllAsync();
                 return _mapper.Map<IEnumerable<AccountResponse>>(list);
             }
             catch (Exception ex)
@@ -40,7 +44,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
         {
             try
             {
-                var entity = await _uow.Accounts.GetByIdAsync(id);
+                var entity = await _unitOfWork.Accounts.GetByIdAsync(id);
                 if (entity == null)
                     return null;
                 return _mapper.Map<AccountResponse>(entity);
@@ -61,8 +65,8 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
                 entity.CreatedAt = DateTime.UtcNow;
                 entity.UpdatedAt = DateTime.UtcNow;
 
-                await _uow.Accounts.AddAsync(entity);
-                await _uow.CommitAsync();
+                await _unitOfWork.Accounts.AddAsync(entity);
+                await _unitOfWork.CommitAsync();
 
                 return _mapper.Map<AccountResponse>(entity);
             }
@@ -77,14 +81,14 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
         {
             try
             {
-                var entity = await _uow.Accounts.GetByIdAsync(id);
+                var entity = await _unitOfWork.Accounts.GetByIdAsync(id);
                 if (entity == null)
                     return false;
 
                 _mapper.Map(request, entity);
                 entity.UpdatedAt = DateTime.UtcNow;
-                _uow.Accounts.Update(entity);
-                await _uow.CommitAsync();
+                _unitOfWork.Accounts.Update(entity);
+                await _unitOfWork.CommitAsync();
 
                 return true;
             }
@@ -99,12 +103,12 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
         {
             try
             {
-                var entity = await _uow.Accounts.GetByIdAsync(id);
+                var entity = await _unitOfWork.Accounts.GetByIdAsync(id);
                 if (entity == null)
                     return false;
 
-                _uow.Accounts.Delete(entity);
-                await _uow.CommitAsync();
+                _unitOfWork.Accounts.Delete(entity);
+                await _unitOfWork.CommitAsync();
 
                 return true;
             }
@@ -128,7 +132,12 @@ namespace VEROSA.BussinessLogicLayer.Services.Account
         {
             try
             {
-                var all = await _uow.Accounts.FindAccountsAsync(username, email, role, status);
+                var all = await _unitOfWork.Accounts.FindAccountsAsync(
+                    username,
+                    email,
+                    role,
+                    status
+                );
                 if (!all.Any())
                     throw new AppException(ErrorCode.LIST_EMPTY);
 

@@ -16,13 +16,17 @@ namespace VEROSA.BussinessLogicLayer.Services.BlogPost
 {
     public class BlogPostService : IBlogPostService
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<BlogPostService> _logger;
 
-        public BlogPostService(IUnitOfWork uow, IMapper mapper, ILogger<BlogPostService> logger)
+        public BlogPostService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ILogger<BlogPostService> logger
+        )
         {
-            _uow = uow;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
         }
@@ -31,7 +35,7 @@ namespace VEROSA.BussinessLogicLayer.Services.BlogPost
         {
             try
             {
-                var list = await _uow.BlogPosts.GetAllAsync();
+                var list = await _unitOfWork.BlogPosts.GetAllAsync();
                 return _mapper.Map<IEnumerable<BlogPostResponse>>(list);
             }
             catch (Exception ex)
@@ -45,7 +49,7 @@ namespace VEROSA.BussinessLogicLayer.Services.BlogPost
         {
             try
             {
-                var e = await _uow.BlogPosts.GetByIdAsync(id);
+                var e = await _unitOfWork.BlogPosts.GetByIdAsync(id);
                 if (e == null)
                     return null;
                 return _mapper.Map<BlogPostResponse>(e);
@@ -64,8 +68,8 @@ namespace VEROSA.BussinessLogicLayer.Services.BlogPost
                 var e = _mapper.Map<DataAccessLayer.Entities.BlogPost>(req);
                 e.Id = Guid.NewGuid();
                 e.PublishedAt = DateTime.UtcNow;
-                await _uow.BlogPosts.AddAsync(e);
-                await _uow.CommitAsync();
+                await _unitOfWork.BlogPosts.AddAsync(e);
+                await _unitOfWork.CommitAsync();
                 return _mapper.Map<BlogPostResponse>(e);
             }
             catch (Exception ex)
@@ -79,12 +83,12 @@ namespace VEROSA.BussinessLogicLayer.Services.BlogPost
         {
             try
             {
-                var e = await _uow.BlogPosts.GetByIdAsync(id);
+                var e = await _unitOfWork.BlogPosts.GetByIdAsync(id);
                 if (e == null)
                     return false;
                 _mapper.Map(req, e);
-                _uow.BlogPosts.Update(e);
-                await _uow.CommitAsync();
+                _unitOfWork.BlogPosts.Update(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -98,11 +102,11 @@ namespace VEROSA.BussinessLogicLayer.Services.BlogPost
         {
             try
             {
-                var e = await _uow.BlogPosts.GetByIdAsync(id);
+                var e = await _unitOfWork.BlogPosts.GetByIdAsync(id);
                 if (e == null)
                     return false;
-                _uow.BlogPosts.Delete(e);
-                await _uow.CommitAsync();
+                _unitOfWork.BlogPosts.Delete(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -124,7 +128,9 @@ namespace VEROSA.BussinessLogicLayer.Services.BlogPost
         {
             try
             {
-                var all = (await _uow.BlogPosts.FindBlogPostsAsync(title, type, authorId)).ToList();
+                var all = (
+                    await _unitOfWork.BlogPosts.FindBlogPostsAsync(title, type, authorId)
+                ).ToList();
                 if (!all.Any())
                     throw new AppException(ErrorCode.LIST_EMPTY);
 
