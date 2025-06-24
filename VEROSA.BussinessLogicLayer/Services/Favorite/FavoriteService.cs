@@ -15,13 +15,17 @@ namespace VEROSA.BussinessLogicLayer.Services.Favorite
 {
     public class FavoriteService : IFavoriteService
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<FavoriteService> _logger;
 
-        public FavoriteService(IUnitOfWork uow, IMapper mapper, ILogger<FavoriteService> logger)
+        public FavoriteService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ILogger<FavoriteService> logger
+        )
         {
-            _uow = uow;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
         }
@@ -30,7 +34,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Favorite
         {
             try
             {
-                var list = await _uow.Favorites.GetAllAsync();
+                var list = await _unitOfWork.Favorites.GetAllAsync();
                 return _mapper.Map<IEnumerable<FavoriteResponse>>(list);
             }
             catch (Exception ex)
@@ -44,7 +48,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Favorite
         {
             try
             {
-                var e = await _uow.Favorites.GetByIdAsync(id);
+                var e = await _unitOfWork.Favorites.GetByIdAsync(id);
                 if (e == null)
                     return null;
                 return _mapper.Map<FavoriteResponse>(e);
@@ -63,8 +67,8 @@ namespace VEROSA.BussinessLogicLayer.Services.Favorite
                 var e = _mapper.Map<DataAccessLayer.Entities.Favorite>(req);
                 e.Id = Guid.NewGuid();
                 e.CreatedAt = DateTime.UtcNow;
-                await _uow.Favorites.AddAsync(e);
-                await _uow.CommitAsync();
+                await _unitOfWork.Favorites.AddAsync(e);
+                await _unitOfWork.CommitAsync();
                 return _mapper.Map<FavoriteResponse>(e);
             }
             catch (Exception ex)
@@ -78,11 +82,11 @@ namespace VEROSA.BussinessLogicLayer.Services.Favorite
         {
             try
             {
-                var e = await _uow.Favorites.GetByIdAsync(id);
+                var e = await _unitOfWork.Favorites.GetByIdAsync(id);
                 if (e == null)
                     return false;
-                _uow.Favorites.Delete(e);
-                await _uow.CommitAsync();
+                _unitOfWork.Favorites.Delete(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -103,7 +107,9 @@ namespace VEROSA.BussinessLogicLayer.Services.Favorite
         {
             try
             {
-                var all = (await _uow.Favorites.FindFavoritesAsync(customerId, productId)).ToList();
+                var all = (
+                    await _unitOfWork.Favorites.FindFavoritesAsync(customerId, productId)
+                ).ToList();
                 if (!all.Any())
                     throw new AppException(ErrorCode.LIST_EMPTY);
 

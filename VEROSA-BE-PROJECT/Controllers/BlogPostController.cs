@@ -10,16 +10,19 @@ using VEROSA.Common.Models.Response;
 
 namespace VEROSA_BE_PROJECT.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/blogposts")]
     [ApiController]
     public class BlogPostController : ControllerBase
     {
-        private readonly IBlogPostService _svc;
+        private readonly IBlogPostService _blogPostService;
         private readonly ILogger<BlogPostController> _logger;
 
-        public BlogPostController(IBlogPostService svc, ILogger<BlogPostController> logger)
+        public BlogPostController(
+            IBlogPostService blogPostService,
+            ILogger<BlogPostController> logger
+        )
         {
-            _svc = svc;
+            _blogPostService = blogPostService;
             _logger = logger;
         }
 
@@ -35,7 +38,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             [FromQuery(Name = "page_size")] int pageSize = 10
         )
         {
-            var page = await _svc.GetWithParamsAsync(
+            var page = await _blogPostService.GetWithParamsAsync(
                 title,
                 type,
                 authorId,
@@ -59,7 +62,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var dto = await _svc.GetByIdAsync(id);
+            var dto = await _blogPostService.GetByIdAsync(id);
             if (dto == null)
             {
                 _logger.LogWarning($"BlogPost not found with id {id}");
@@ -89,7 +92,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] BlogPostRequest req)
         {
-            var created = await _svc.CreateAsync(req);
+            var created = await _blogPostService.CreateAsync(req);
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
@@ -107,7 +110,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] BlogPostRequest req)
         {
-            if (!await _svc.UpdateAsync(id, req))
+            if (!await _blogPostService.UpdateAsync(id, req))
             {
                 _logger.LogWarning($"Failed to update BlogPost with id {id}");
                 return NotFound(
@@ -127,7 +130,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            if (!await _svc.DeleteAsync(id))
+            if (!await _blogPostService.DeleteAsync(id))
             {
                 _logger.LogWarning($"Failed to delete BlogPost with id {id}");
                 return NotFound(

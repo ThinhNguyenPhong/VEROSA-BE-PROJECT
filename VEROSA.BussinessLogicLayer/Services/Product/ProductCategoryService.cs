@@ -15,17 +15,17 @@ namespace VEROSA.BussinessLogicLayer.Services.Product
 {
     public class ProductCategoryService : IProductCategoryService
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<ProductCategoryService> _logger;
 
         public ProductCategoryService(
-            IUnitOfWork uow,
+            IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<ProductCategoryService> logger
         )
         {
-            _uow = uow;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
         }
@@ -34,7 +34,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Product
         {
             try
             {
-                var list = await _uow.ProductCategories.GetAllAsync();
+                var list = await _unitOfWork.ProductCategories.GetAllAsync();
                 return _mapper.Map<IEnumerable<ProductCategoryResponse>>(list);
             }
             catch (Exception ex)
@@ -48,7 +48,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Product
         {
             try
             {
-                var e = await _uow.ProductCategories.GetByIdAsync(id);
+                var e = await _unitOfWork.ProductCategories.GetByIdAsync(id);
                 if (e == null)
                     return null;
                 return _mapper.Map<ProductCategoryResponse>(e);
@@ -66,8 +66,8 @@ namespace VEROSA.BussinessLogicLayer.Services.Product
             {
                 var entity = _mapper.Map<DataAccessLayer.Entities.ProductCategory>(req);
                 entity.Id = Guid.NewGuid();
-                await _uow.ProductCategories.AddAsync(entity);
-                await _uow.CommitAsync();
+                await _unitOfWork.ProductCategories.AddAsync(entity);
+                await _unitOfWork.CommitAsync();
                 return _mapper.Map<ProductCategoryResponse>(entity);
             }
             catch (Exception ex)
@@ -81,12 +81,12 @@ namespace VEROSA.BussinessLogicLayer.Services.Product
         {
             try
             {
-                var e = await _uow.ProductCategories.GetByIdAsync(id);
+                var e = await _unitOfWork.ProductCategories.GetByIdAsync(id);
                 if (e == null)
                     return false;
                 _mapper.Map(req, e);
-                _uow.ProductCategories.Update(e);
-                await _uow.CommitAsync();
+                _unitOfWork.ProductCategories.Update(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -100,11 +100,11 @@ namespace VEROSA.BussinessLogicLayer.Services.Product
         {
             try
             {
-                var e = await _uow.ProductCategories.GetByIdAsync(id);
+                var e = await _unitOfWork.ProductCategories.GetByIdAsync(id);
                 if (e == null)
                     return false;
-                _uow.ProductCategories.Delete(e);
-                await _uow.CommitAsync();
+                _unitOfWork.ProductCategories.Delete(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -124,7 +124,7 @@ namespace VEROSA.BussinessLogicLayer.Services.Product
         {
             try
             {
-                var all = (await _uow.ProductCategories.FindCategoriesAsync(name)).ToList();
+                var all = (await _unitOfWork.ProductCategories.FindCategoriesAsync(name)).ToList();
                 if (!all.Any())
                     throw new AppException(ErrorCode.LIST_EMPTY);
 

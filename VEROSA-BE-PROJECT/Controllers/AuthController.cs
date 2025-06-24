@@ -20,7 +20,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             _logger = logger;
         }
 
-        [HttpPost("register")]
+        [HttpPost("registers")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest req)
         {
             var result = await _authService.RegisterAsync(req);
@@ -37,7 +37,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             );
         }
 
-        [HttpPost("login")]
+        [HttpPost("logins")]
         public async Task<IActionResult> Login([FromBody] LoginRequest req)
         {
             var result = await _authService.LoginAsync(req);
@@ -52,7 +52,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             );
         }
 
-        [HttpPost("set-password")]
+        [HttpPost("set-passwords")]
         public async Task<IActionResult> SetPassword([FromBody] SetPasswordRequest req)
         {
             var result = await _authService.SetPasswordAsync(req);

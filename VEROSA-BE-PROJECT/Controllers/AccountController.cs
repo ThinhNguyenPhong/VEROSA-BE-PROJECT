@@ -14,12 +14,12 @@ namespace VEROSA_BE_PROJECT.Controllers
     [Route("api/v1/accounts")]
     public class AccountController : ControllerBase
     {
-        private readonly IAccountService _svc;
+        private readonly IAccountService _accountService;
         private readonly ILogger<AccountController> _logger;
 
-        public AccountController(IAccountService svc, ILogger<AccountController> logger)
+        public AccountController(IAccountService accountService, ILogger<AccountController> logger)
         {
-            _svc = svc;
+            _accountService = accountService;
             _logger = logger;
         }
 
@@ -36,7 +36,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             [FromQuery(Name = "page_size")] int pageSize = 10
         )
         {
-            var page = await _svc.GetWithParamsAsync(
+            var page = await _accountService.GetWithParamsAsync(
                 username,
                 email,
                 role,
@@ -62,7 +62,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var dto = await _svc.GetByIdAsync(id);
+            var dto = await _accountService.GetByIdAsync(id);
             if (dto == null)
             {
                 _logger.LogWarning($"Account not found with id {id}");
@@ -92,7 +92,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] AccountRequest request)
         {
-            var created = await _svc.CreateAsync(request);
+            var created = await _accountService.CreateAsync(request);
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
@@ -110,7 +110,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] AccountRequest request)
         {
-            if (!await _svc.UpdateAsync(id, request))
+            if (!await _accountService.UpdateAsync(id, request))
             {
                 _logger.LogWarning($"Failed to update account with id {id}");
                 return NotFound(
@@ -130,7 +130,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "ROLE_ADMIN")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            if (!await _svc.DeleteAsync(id))
+            if (!await _accountService.DeleteAsync(id))
             {
                 _logger.LogWarning($"Failed to delete account with id {id}");
                 return NotFound(

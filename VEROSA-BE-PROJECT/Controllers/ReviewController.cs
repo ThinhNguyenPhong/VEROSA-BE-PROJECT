@@ -8,16 +8,16 @@ using VEROSA.Common.Models.Response;
 
 namespace VEROSA_BE_PROJECT.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/reviews")]
     [ApiController]
     public class ReviewController : ControllerBase
     {
-        private readonly IReviewService _svc;
+        private readonly IReviewService _reviewService;
         private readonly ILogger<ReviewController> _logger;
 
-        public ReviewController(IReviewService svc, ILogger<ReviewController> logger)
+        public ReviewController(IReviewService reviewService, ILogger<ReviewController> logger)
         {
-            _svc = svc;
+            _reviewService = reviewService;
             _logger = logger;
         }
 
@@ -33,7 +33,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             [FromQuery(Name = "page_size")] int pageSize = 10
         )
         {
-            var page = await _svc.GetWithParamsAsync(
+            var page = await _reviewService.GetWithParamsAsync(
                 productId,
                 customerId,
                 minRating,
@@ -57,7 +57,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var dto = await _svc.GetByIdAsync(id);
+            var dto = await _reviewService.GetByIdAsync(id);
             if (dto == null)
             {
                 _logger.LogWarning($"Review not found with id {id}");
@@ -85,7 +85,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ReviewRequest req)
         {
-            var created = await _svc.CreateAsync(req);
+            var created = await _reviewService.CreateAsync(req);
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
@@ -102,7 +102,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] ReviewRequest req)
         {
-            if (!await _svc.UpdateAsync(id, req))
+            if (!await _reviewService.UpdateAsync(id, req))
             {
                 _logger.LogWarning($"Failed to update review with id {id}");
                 return NotFound(
@@ -121,7 +121,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            if (!await _svc.DeleteAsync(id))
+            if (!await _reviewService.DeleteAsync(id))
             {
                 _logger.LogWarning($"Failed to delete review with id {id}");
                 return NotFound(

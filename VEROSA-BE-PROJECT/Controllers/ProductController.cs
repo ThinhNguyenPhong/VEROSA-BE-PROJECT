@@ -9,26 +9,24 @@ using VEROSA.Common.Models.Response;
 
 namespace VEROSA_BE_PROJECT.Controllers
 {
-    [Route("api/products")]
+    [Route("api/v1/products")]
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IProductCategoryService _catSvc;
-        private readonly IProductService _prodSvc;
+        private readonly IProductCategoryService _productCategoryService;
+        private readonly IProductService _productService;
         private readonly ILogger<ProductController> _logger;
 
         public ProductController(
-            IProductCategoryService catSvc,
-            IProductService prodSvc,
+            IProductCategoryService productCategoryService,
+            IProductService productService,
             ILogger<ProductController> logger
         )
         {
-            _catSvc = catSvc;
-            _prodSvc = prodSvc;
+            _productCategoryService = productCategoryService;
+            _productService = productService;
             _logger = logger;
         }
-
-        // ----- Category Endpoints -----
 
         [HttpGet("categories")]
         ////[Authorize(Roles = "Admin")]
@@ -40,7 +38,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             [FromQuery(Name = "page_size")] int pageSize = 10
         )
         {
-            var page = await _catSvc.GetWithParamsAsync(
+            var page = await _productCategoryService.GetWithParamsAsync(
                 name,
                 sortBy,
                 sortDesc,
@@ -62,7 +60,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         ////[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetCategoryById(Guid id)
         {
-            var dto = await _catSvc.GetByIdAsync(id);
+            var dto = await _productCategoryService.GetByIdAsync(id);
             if (dto == null)
             {
                 _logger.LogWarning($"Category not found with id {id}");
@@ -92,7 +90,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         ////[Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCategory([FromBody] ProductCategoryRequest req)
         {
-            var created = await _catSvc.CreateAsync(req);
+            var created = await _productCategoryService.CreateAsync(req);
             return CreatedAtAction(
                 nameof(GetCategoryById),
                 new { id = created.Id },
@@ -113,7 +111,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             [FromBody] ProductCategoryRequest req
         )
         {
-            if (!await _catSvc.UpdateAsync(id, req))
+            if (!await _productCategoryService.UpdateAsync(id, req))
             {
                 _logger.LogWarning($"Failed to update category with id {id}");
                 return NotFound(
@@ -133,7 +131,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         ////[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
-            if (!await _catSvc.DeleteAsync(id))
+            if (!await _productCategoryService.DeleteAsync(id))
             {
                 _logger.LogWarning($"Failed to delete category with id {id}");
                 return NotFound(
@@ -162,7 +160,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             [FromQuery(Name = "page_size")] int pageSize = 10
         )
         {
-            var page = await _prodSvc.GetWithParamsAsync(
+            var page = await _productService.GetWithParamsAsync(
                 categoryId,
                 name,
                 sortBy,
@@ -185,7 +183,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         ////[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetProductById(Guid id)
         {
-            var dto = await _prodSvc.GetByIdAsync(id);
+            var dto = await _productService.GetByIdAsync(id);
             if (dto == null)
             {
                 _logger.LogWarning($"Product not found with id {id}");
@@ -215,7 +213,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         ////[Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductRequest req)
         {
-            var created = await _prodSvc.CreateAsync(req);
+            var created = await _productService.CreateAsync(req);
             return CreatedAtAction(
                 nameof(GetProductById),
                 new { id = created.Id },
@@ -233,7 +231,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         ////[Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductRequest req)
         {
-            if (!await _prodSvc.UpdateAsync(id, req))
+            if (!await _productService.UpdateAsync(id, req))
             {
                 _logger.LogWarning($"Failed to update product with id {id}");
                 return NotFound(
@@ -253,7 +251,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            if (!await _prodSvc.DeleteAsync(id))
+            if (!await _productService.DeleteAsync(id))
             {
                 _logger.LogWarning($"Failed to delete product with id {id}");
                 return NotFound(

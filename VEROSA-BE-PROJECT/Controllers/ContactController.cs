@@ -13,12 +13,12 @@ namespace VEROSA_BE_PROJECT.Controllers
     [Route("api/v1/contacts")]
     public class ContactController : ControllerBase
     {
-        private readonly IContactService _svc;
+        private readonly IContactService _contactService;
         private readonly ILogger<ContactController> _logger;
 
-        public ContactController(IContactService svc, ILogger<ContactController> logger)
+        public ContactController(IContactService contactService, ILogger<ContactController> logger)
         {
-            _svc = svc;
+            _contactService = contactService;
             _logger = logger;
         }
 
@@ -33,7 +33,7 @@ namespace VEROSA_BE_PROJECT.Controllers
             [FromQuery(Name = "page_size")] int pageSize = 10
         )
         {
-            var page = await _svc.GetWithParamsAsync(
+            var page = await _contactService.GetWithParamsAsync(
                 name,
                 email,
                 isResolved,
@@ -56,7 +56,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var dto = await _svc.GetByIdAsync(id);
+            var dto = await _contactService.GetByIdAsync(id);
             if (dto == null)
             {
                 _logger.LogWarning($"Contact not found with id {id}");
@@ -85,7 +85,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ContactRequest req)
         {
-            var created = await _svc.CreateAsync(req);
+            var created = await _contactService.CreateAsync(req);
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = created.Id },
@@ -102,7 +102,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] ContactRequest req)
         {
-            if (!await _svc.UpdateAsync(id, req))
+            if (!await _contactService.UpdateAsync(id, req))
             {
                 _logger.LogWarning($"Failed to update contact with id {id}");
                 return NotFound(
@@ -121,7 +121,7 @@ namespace VEROSA_BE_PROJECT.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            if (!await _svc.DeleteAsync(id))
+            if (!await _contactService.DeleteAsync(id))
             {
                 _logger.LogWarning($"Failed to delete contact with id {id}");
                 return NotFound(

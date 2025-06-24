@@ -11,17 +11,17 @@ namespace VEROSA.BussinessLogicLayer.Services.SupportTicket
 {
     public class SupportTicketService : ISupportTicketService
     {
-        private readonly IUnitOfWork _uow;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<SupportTicketService> _logger;
 
         public SupportTicketService(
-            IUnitOfWork uow,
+            IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<SupportTicketService> logger
         )
         {
-            _uow = uow;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
         }
@@ -30,7 +30,7 @@ namespace VEROSA.BussinessLogicLayer.Services.SupportTicket
         {
             try
             {
-                var list = await _uow.SupportTickets.GetAllAsync();
+                var list = await _unitOfWork.SupportTickets.GetAllAsync();
                 return _mapper.Map<IEnumerable<SupportTicketResponse>>(list);
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace VEROSA.BussinessLogicLayer.Services.SupportTicket
         {
             try
             {
-                var e = await _uow.SupportTickets.GetByIdAsync(id);
+                var e = await _unitOfWork.SupportTickets.GetByIdAsync(id);
                 if (e == null)
                     return null;
                 return _mapper.Map<SupportTicketResponse>(e);
@@ -64,8 +64,8 @@ namespace VEROSA.BussinessLogicLayer.Services.SupportTicket
                 e.Id = Guid.NewGuid();
                 e.CreatedAt = DateTime.UtcNow;
                 e.UpdatedAt = DateTime.UtcNow;
-                await _uow.SupportTickets.AddAsync(e);
-                await _uow.CommitAsync();
+                await _unitOfWork.SupportTickets.AddAsync(e);
+                await _unitOfWork.CommitAsync();
                 return _mapper.Map<SupportTicketResponse>(e);
             }
             catch (Exception ex)
@@ -79,13 +79,13 @@ namespace VEROSA.BussinessLogicLayer.Services.SupportTicket
         {
             try
             {
-                var e = await _uow.SupportTickets.GetByIdAsync(id);
+                var e = await _unitOfWork.SupportTickets.GetByIdAsync(id);
                 if (e == null)
                     return false;
                 _mapper.Map(req, e);
                 e.UpdatedAt = DateTime.UtcNow;
-                _uow.SupportTickets.Update(e);
-                await _uow.CommitAsync();
+                _unitOfWork.SupportTickets.Update(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -99,11 +99,11 @@ namespace VEROSA.BussinessLogicLayer.Services.SupportTicket
         {
             try
             {
-                var e = await _uow.SupportTickets.GetByIdAsync(id);
+                var e = await _unitOfWork.SupportTickets.GetByIdAsync(id);
                 if (e == null)
                     return false;
-                _uow.SupportTickets.Delete(e);
-                await _uow.CommitAsync();
+                _unitOfWork.SupportTickets.Delete(e);
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (Exception ex)
@@ -124,7 +124,9 @@ namespace VEROSA.BussinessLogicLayer.Services.SupportTicket
         {
             try
             {
-                var all = (await _uow.SupportTickets.FindTicketsAsync(customerId, status)).ToList();
+                var all = (
+                    await _unitOfWork.SupportTickets.FindTicketsAsync(customerId, status)
+                ).ToList();
                 if (!all.Any())
                     throw new AppException(ErrorCode.LIST_EMPTY);
 
