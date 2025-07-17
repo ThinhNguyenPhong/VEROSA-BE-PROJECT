@@ -1,190 +1,115 @@
-# VEROSA Beauty - Backend API
-
-An ASP.NET Core Web API backend for **VEROSA Beauty**, an e-commerce platform for beauty products and services.
-
----
-
-## Table of Contents
-
-* [Description](#description)
-* [Technologies](#technologies)
-* [Project Structure](#project-structure)
-* [Prerequisites](#prerequisites)
-* [Getting Started](#getting-started)
-* [Database Setup](#database-setup)
-* [Running the API](#running-the-api)
-* [API Documentation](#api-documentation)
-* [Features](#features)
-* [Contributing](#contributing)
-* [License](#license)
-* [Contact](#contact)
-
----
+# SkinCare Product Sale
 
 ## Description
 
-VEROSA Beauty Backend is a RESTful API built with ASP.NET Core 8.0 and Entity Framework Core, powering the VEROSA Beauty e-commerce platform. It handles user authentication, product and order management, beauty service appointments, blog content, and customer support.
+SkinCare Product Sale is a web application for managing and selling skincare products, built with ASP.NET Core and Entity Framework Core. It streamlines product catalog management, order processing, customer relationships, and promotional campaigns.
 
----
+## Key Features
 
-## Technologies
-
-* **Framework:** ASP.NET Core 8.0
-* **ORM:** Entity Framework Core
-* **Database:** MySQL Server 8.0+
-* **Authentication:** JWT Bearer tokens
-* **Mapping:** AutoMapper
-* **Security:** BCrypt for password hashing
-* **Email:** MailKit
-* **Documentation:** Swagger UI
-
----
+* **Product Management**: Create, edit, delete, and categorize products.
+* **Shopping Cart**: Add products to the cart, adjust quantities, and view order totals.
+* **Order Processing**: Create orders, track status updates, and manage order history.
+* **Customer Management**: Maintain customer profiles, shipping addresses, and purchase history.
+* **Promotion System**: Create discount codes and apply promotional offers to orders.
+* **Payment Handling**: Integrate with payment gateways and manage payment statuses.
+* **Authentication & Authorization**: Role-based access control with Admin, Customer, and Employee roles.
+* **Admin Dashboard**: A comprehensive interface for administrators to manage all aspects of the system.
 
 ## Project Structure
 
 ```
-VEROSA-BE-PROJECT/                # Main API Project
-├── Controllers/                  # API controllers
-├── Mappers/                      # AutoMapper profiles
-└── Program.cs                    # Application entry point
-
-VEROSA.BusinessLogicLayer/       # Business logic
-├── PasswordHash/                 # BCrypt helper
-└── Services/                     # Domain services
-
-VEROSA.Common/                   # Shared utilities
-├── Enums/                        # Common enums
-├── Exceptions/                   # Custom exception types
-└── Models/                       # DTOs and shared models
-
-VEROSA.DataAccessLayer/          # Data access
-├── Context/                      # DbContext definitions
-├── Entities/                     # EF Core entity classes
-├── Migrations/                   # EF Core migrations
-└── Repositories/                 # Repository implementations
+SkinCare-Product-Sale/
+├── Business_Layer/         # Business logic layer
+│   ├── Services/           # Business service implementations
+│   └── Business_Layer.csproj
+├── Data_Access_Layer/      # Data access layer
+│   ├── DBContext/          # Entity Framework database context
+│   ├── Entities/           # Entity models
+│   ├── Migrations/         # EF Core migrations
+│   ├── Repositories/       # Repository classes
+│   ├── Requests/           # Request DTOs
+│   └── Responses/          # Response DTOs
+└── SkinCare-Product-Sale/  # Web application
+    ├── Controllers/        # MVC controllers
+    ├── Models/             # View models
+    ├── Views/              # Razor views
+    └── wwwroot/            # Static files (CSS, JS, images)
 ```
 
----
+## Technologies Used
+
+* ASP.NET Core 6.0+
+* Entity Framework Core
+* SQL Server / SQL Server Express
+* Bootstrap 5
+* jQuery
+* HTML, CSS, JavaScript
 
 ## Prerequisites
 
-* [.NET 8 SDK](https://dotnet.microsoft.com/download)
-* [MySQL Server 8.0+](https://dev.mysql.com/downloads/mysql/)
-
----
+* [.NET SDK 6.0 or later](https://dotnet.microsoft.com/download)
+* SQL Server or SQL Server Express
 
 ## Getting Started
 
-1. **Clone the repository**
+1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/VEROSA-BE-PROJECT.git
-   cd VEROSA-BE-PROJECT
+   git clone https://github.com/username/SkinCare-Product-Sale.git
+   cd SkinCare-Product-Sale
    ```
-2. **Configure `appsettings.json`**
+2. **Configure the database connection:**
 
-   ```json
-   {
+   * Open `appsettings.json` in the `SkinCare-Product-Sale` folder.
+   * Update the `DefaultConnection` string with your SQL Server details:
+
+     ```json
      "ConnectionStrings": {
-       "DefaultConnection": "Server=localhost;Database=VerosaBeauty;User=root;Password=YourPassword;"
-     },
-     "JwtSettings": {
-       "Key": "YOUR_SECRET_KEY",
-       "Issuer": "VEROSA",
-       "Audience": "VEROSA_Audience",
-       "DurationInMinutes": 60
-     },
-     "EmailSettings": {
-       "SmtpServer": "smtp.example.com",
-       "Port": 587,
-       "Username": "user@example.com",
-       "Password": "emailPassword"
+       "DefaultConnection": "Server=YOUR_SERVER;Database=SkinCareSaleDb;Trusted_Connection=True;"
      }
-   }
-   ```
-
----
-
-## Database Setup
-
-1. **Apply migrations**
+     ```
+3. **Apply EF Core migrations:**
 
    ```bash
-   dotnet ef database update --project VEROSA.DataAccessLayer
+   cd Data_Access_Layer
+   dotnet ef database update
    ```
-2. **Verify**
+4. **Run the application:**
 
-   * A `VerosaBeauty` database should be created with all tables.
+   ```bash
+   cd ../SkinCare-Product-Sale
+   dotnet run
+   ```
+5. **Access the app:**
 
----
+   * Open your browser and navigate to `https://localhost:5001` (or the specified port).
 
-## Running the API
+## Authentication & Authorization
 
-```bash
-# From solution root
-dotnet run --project VEROSA-BE-PROJECT
-```
+The application uses ASP.NET Core Identity with role-based access control:
 
-By default, the API will run on `https://localhost:5001`.
-
----
-
-## API Documentation
-
-Visit the Swagger UI for interactive documentation once the API is running:
-
-```
-https://localhost:5001/swagger
-```
-
----
-
-## Features
-
-* **User Management**
-
-  * Registration with email confirmation
-  * JWT-based authentication
-  * Role-based authorization
-  * Secure password hashing (BCrypt)
-* **Product Management**
-
-  * Categories, product images, reviews, and favorites
-* **Order Management**
-
-  * Shopping cart, discount codes, and payment processing
-* **Appointment System**
-
-  * Scheduling beauty services, payment integration
-* **Content Management**
-
-  * Blog posts, images, and article types
-* **Support System**
-
-  * Contact form, support tickets, and customer service workflows
-
----
+* **Admin**: Full permissions, including managing products, orders, promotions, and users.
+* **Customer**: Can browse products, place orders, and view their own order history.
+* **Employee**: Can manage orders and customer information.
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/YourFeature`
-3. Commit your changes: `git commit -m "Add some feature"`
-4. Push to branch: `git push origin feature/YourFeature`
-5. Open a Pull Request
+1. Fork this repository.
+2. Create a new branch for your feature or bug fix:
 
-Please adhere to the existing code style and include tests for new functionality.
+   ```bash
+   git checkout -b feature/FeatureName
+   ```
+3. Commit your changes:
 
----
+   ```bash
+   git commit -m "Add FeatureName"
+   ```
+4. Push to the branch:
 
-## License
+   ```bash
+   git push origin feature/FeatureName
+   ```
+5. Open a Pull Request.
 
-This project is licensed under the [MIT License](LICENSE).
 
----
-
-## Contact
-
-For questions or support, open an issue or contact:
-
-* **Thinh Nguyen** - [phongthinh799@gmail.com](mailto:phongthinh799@gmail.com)
